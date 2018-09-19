@@ -1,7 +1,8 @@
 // main.c, 159
 // OS bootstrap and The Kernel for OS phase 1
 //
-// Team Name: ??????? (Members: ??????...)
+// Team Name: null  
+// Members: Mckayla Glaves, Javanika Naik
 
 #include "include.h"  // given SPEDE stuff
 #include "types.h"    // kernle data types
@@ -30,49 +31,62 @@ void InitKernel(void) {             // init and set up kernel!
 }
 
 void Scheduler(void) {             // choose a cur_pid to run
-   if cur_pid is greater than 0, just return; // a user PID is already picked
+   //if cur_pid is greater than 0, just return; // a user PID is already picked
+   if (cur_pid > 0) return;
+   if (ready_q == 0 && cur_pid == 0) return;  //if ready_q is empty && cur_pid is 0, just return; // InitProc OK
 
-   if ready_q is empty && cur_pid is 0, just return; // InitProc OK
-
-   if ready_q is empty && cur_pid is -1 {
-      cons_printf "Kernel panic: no process to run!\n
+   if (ready_q == 0 && cur_pid == -1) {
+      cons_printf "Kernel panic: no process to run!\n);
       breakpoint();                                  // to GDB we go
    }
 
-   if cur_pid is not -1, then append cur_pid to ready_q; // suspend cur_pid
-   replace cur_pid with the 1st one in ready_q; // pick a user proc
-
-   ... ;                          // reset process time
-   ... ;                          // change its state
+   //if cur_pid is not -1, then append cur_pid to ready_q; // suspend cur_pid
+   //replace cur_pid with the 1st one in ready_q; // pick a user proc
+   if (cur_pid != -1) {
+     pcb[cur_pid].state = READY;
+     cur_pid = ready_q[0];
+   }
+   pcb[cur_pid].clk_count = 0;
+   pcb[cur_pid].state = READY;
+   // reset process time
+   // change its state
 }
 
 int main(void) {                       // OS bootstraps
-   initialize the kernel-related stuff by calling ...
+   //initialize the kernel-related stuff by calling ...
 
-   create InitProc process;            // create InitProc
-   set cur_pid to the 1st PID;         // select cur_pid
-   call Loader(with its TF_p);         // load proc to run
-
+   //create InitProc process;            // create InitProc
+   //set cur_pid to the 1st PID;         // select cur_pid
+   //call Loader(with its TF_p);         // load proc to run
+   Loader(pcb[0].TF_p);
    return 0; // statement never reached, compiler needs it for syntax
 }
 
 void TheKernel(TF_t *TF_p) {           // kernel runs
    char ch;
+   pcb[cur_pid].TF_p = TF_p;
+   TimerISR();
+   //....TF_p = TF_p; // save TF addr
 
-   ....TF_p = TF_p; // save TF addr
+   //call Timer ISR;                     // handle tiemr event
 
-   call Timer ISR;                     // handle tiemr event
-
-   if PC KB pressed {                  // if keyboard pressed
-      get the pressed key/character
-      if it's 'b':                     // 'b' for breakpoint
-         ...                        // go into GDB
-         break;
-      if it's 'n':                     // 'n' for new process
-         call NewProc ISR (with UserProc as argument); // create a UserProc
-     }
+   //if PC KB pressed {                  // if keyboard pressed
+     // get the pressed key/character
+      //if it's 'b':                     // 'b' for breakpoint
+        // ...                        // go into GDB
+         //break;
+      //if it's 'n':                     // 'n' for new process
+        // call NewProc ISR (with UserProc as argument); // create a UserProc
+     //}
+   if (cons_kbhit()) {
+     char key = cons_getchar();
+     if ('b' : breakpoint()) 
+       break;
+     if ('n' : NewProcISR(UserProc));
    }
-   call Scheduler() // which may pick another proc
-   call Loader(with TF_p of scheduled process); // load proc to run!
+   Scheduler();
+   Loader(pcb[cur_pid].TF_p);
+   //call Scheduler() // which may pick another proc
+   //call Loader(with TF_p of scheduled process); // load proc to run!
 }
 

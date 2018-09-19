@@ -1,7 +1,10 @@
 // proc.h, 159
 
-...  // prototype those in proc.c here
-...
-...
-...
-...
+#ifndef __PROC_H__
+#define __PROC_H__
+
+void InitProc(void);
+void UserProc(void);
+
+#endif
+

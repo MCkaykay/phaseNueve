@@ -6,7 +6,9 @@
 
 // clear DRAM data block, zero-fill it
 void Bzero(char *p, int bytes) {
-   ...
+   for(int i=0; i<=p->size-1; i++){
+     p[i]=char(0);
+   }
 }
 
 int QisEmpty(q_t *p) { // return 1 if empty, else 0
@@ -31,12 +33,8 @@ int DeQ(q_t *p) { // return -1 if q[] is empty
       return -1;
    }
    pid = p->a[p->head];
-   if (p->head == p->tail)
-     p->head=p->tail=-1;
-   else if(p->head == p->size-1)
-     p->head = 0;
-   else
-     p->head=p->head+1;
+   p->size--;
+   p->head = (p->head+1) % Q_SIZE;
    return pid;
 }
 
@@ -46,7 +44,7 @@ void EnQ(int to_add, q_t *p) {
       cons_printf("Kernel panic: queue is full, cannot EnQ!\n");
       return;
    }
-   p->a[p->tail] =  to_add;
+   p->a[p->tail] = to_add;
    p->size = p->size + 1;
    p->tail = (p->tail +1) % Q_SIZE;
 }

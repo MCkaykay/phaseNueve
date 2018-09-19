@@ -12,7 +12,7 @@
 void NewProcISR(func_p_t p) {  // arg: where process code starts
    int pid;
 
-   if( avail_q is empty ) {    // may occur if too many been created
+   if(avail_q == 0 ) {    // may occur if too many been created
       cons_printf("Kernel panic: no more process!\n");
       ...                      // cannot continue, alternative: breakpoint();
    }
@@ -34,15 +34,15 @@ void NewProcISR(func_p_t p) {  // arg: where process code starts
 
 // count run time and switch if hitting time limit
 void TimerISR(void) {
-   outportb(...                              // notify PIC getting done
+   outportb(PIC_CONTROL, DONE);                              // notify PIC getting done
 
-   ...                                       // count up time
-   ...                                       // count up life
+   pcb[cur_pid].time++;                                       // count up time
+   pcb[cur_pid].life++;                                       // count up life
 
-   if(...                          ) {       // if runs long enough
-      ...                                    // move it back to ready_q
-      ...                                    // change its state
-      ...                                    // now no running proc
+   if(pcb[cur_pid].time == TIME_SLICE) {                         // if runs long enough
+      EnQ(cur_pid, &ready_q);                                    // move it back to ready_q
+      pcb[cur_pid].state=READY;                                    // change its state
+      cur_pid = -1;                                    // now no running proc
    }
 }
 
