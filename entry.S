@@ -2,7 +2,7 @@
 
 #include "constants.h"
 #include <spede/machine/asmacros.h> // do not use/include "spede.h"
-#define K_STACK_SIZE (16*2^10)      // kernel has 16KB stack
+#define K_STACK_SIZE (16*1024)      // kernel has 16KB stack
 
 .comm k_stack, K_STACK_SIZE, 1      // declare kernel stack space (16K x 1B)
 .text

@@ -21,13 +21,14 @@ void InitKernel(void) {             // init and set up kernel!
    int i;
    struct i386_gate *IVT_p;         // IVT's DRAM location
 
-   ...   = get_idt_base();          // get IVT location
-   fill_gate(...);                  // fill out IVT for timer
-   outportb(...);                   // mask out PIC for timer
+   IVT_p = get_idt_base();          // get IVT location
+   fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
+   outportb(PIC_MASK, MASK);                   // mask out PIC for timer
 
-   Bzero(...);                      // clear 2 queues
-   Bzero(...);
-   for(i=...                        // add all avail PID's to the queue
+   Bzero(&avail_q, sizeof(q_t));                      // clear 2 queues
+   Bzero(&ready_q, sizeof(q_t));
+   for(int i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
+     EnQ(&avail_q, i);
 }
 
 void Scheduler(void) {             // choose a cur_pid to run
@@ -43,10 +44,11 @@ void Scheduler(void) {             // choose a cur_pid to run
    //if cur_pid is not -1, then append cur_pid to ready_q; // suspend cur_pid
    //replace cur_pid with the 1st one in ready_q; // pick a user proc
    if (cur_pid != -1) {
+     EnQ(cur_pid, &ready_q);
      pcb[cur_pid].state = READY;
      cur_pid = ready_q[0];
    }
-   pcb[cur_pid].clk_count = 0;
+   pcb[cur_pid].time = 0;
    pcb[cur_pid].state = READY;
    // reset process time
    // change its state
@@ -54,7 +56,7 @@ void Scheduler(void) {             // choose a cur_pid to run
 
 int main(void) {                       // OS bootstraps
    //initialize the kernel-related stuff by calling ...
-
+   
    //create InitProc process;            // create InitProc
    //set cur_pid to the 1st PID;         // select cur_pid
    //call Loader(with its TF_p);         // load proc to run

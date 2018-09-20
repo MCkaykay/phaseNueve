@@ -13,11 +13,14 @@ void InitProc(void) {
    point p to 0xb8000; // upper-left corner of display
 
    while(1) {
-      p = '.' + VGA_MASK
-      wait for half of LOOP: loop on asm("inb $0x80");
-
-      p = ' ' + VGA_MASK 
-      wait for half of LOOP: loop on asm("inb $0x80");
+      p = '.' + VGA_MASK;
+      for(int i=0; i<= (LOOP/2); i++){
+        asm("inb $0x80");
+      }
+      p = ' ' + VGA_MASK;
+      for(int i=0; i<=(LOOP/2); i++){
+        asm("inb $0x80");
+      }
    }
 }
 
@@ -30,9 +33,12 @@ void UserProc(void) {
       show 1st digit of its PID
       move p to next column
       show 2nd digit of its PID
-      wait for half of LOOP: loop on asm("inb $0x80");
-
+      for(int i=0; i<=(LOOP/2); i++){
+        asm("inb $0x80");
+      }
       erase above writing
-      wait for half of LOOP: loop on asm("inb $0x80");
+      for (int i=0; i<=(LOOP/2); i++){
+        asm("inb $0x80");
+      }
    }
 }
