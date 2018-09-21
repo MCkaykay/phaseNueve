@@ -12,9 +12,9 @@
 void NewProcISR(func_p_t p) {  // arg: where process code starts
    int pid;
 
-   if(avail_q.size == 0 ) {    // may occur if too many been created
+   if(QisEmpty(&avail_q)) {    // may occur if too many been created
       cons_printf("Kernel panic: no more process!\n");
-      breakpoint();                      // cannot continue, alternative: breakpoint();
+      breakpoint();     // cannot continue, alternative: breakpoint();
    }
 
    pid = DeQ(&avail_q);                         // alloc PID (1st is 0)
