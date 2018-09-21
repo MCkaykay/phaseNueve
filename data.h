@@ -6,10 +6,9 @@
 #define __DATA__
 
 #include "types.h"             // defines q_t, pcb_t, PROC_MAX, STACK_SIZE
-
+PROC_MAX, STACK_SIZE;
 extern int cur_pid;            // PID of current selected running process
-...                            // prototype the rest...
-...
-...
-
+extern q_t ready_q, avail_q;
+extern pcb_t pcb[PROC_MAX];
+extern char STACK[PROC_MAX][STACK_SIZE];
 #endif                         // endif of ifndef

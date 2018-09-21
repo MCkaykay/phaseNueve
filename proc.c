@@ -10,14 +10,14 @@ void InitProc(void) {
    int i;
    unsigned short *p;
 
-   point p to 0xb8000; // upper-left corner of display
-
+   //point p to 0xb8000; // upper-left corner of display
+   p = (unsigned short *)0xb8000;
    while(1) {
-      p = '.' + VGA_MASK;
+      *p = '.' + VGA_MASK;
       for(int i=0; i<= (LOOP/2); i++){
         asm("inb $0x80");
       }
-      p = ' ' + VGA_MASK;
+      *p = ' ' + VGA_MASK;
       for(int i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }
@@ -29,14 +29,14 @@ void UserProc(void) {
    unsigned short *p;
 
    while(1) {
-      point p to (0xb8000 + offset according to its PID)
-      show 1st digit of its PID
-      move p to next column
-      show 2nd digit of its PID
+      p = (unsigned short *)(0xb8000 + cur_pid);   //point p to (0xb8000 + offset according to PID)
+      cons_printf("%d", cur_pid);                  //show 1st digit of its PID
+      p++;                                         //move p to next column
+      cons_printf("%d ", cur_pid);                 //show 2nd digit of its PID
       for(int i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }
-      erase above writing
+      cons_printf("      ");                       //erase above writing
       for (int i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }
