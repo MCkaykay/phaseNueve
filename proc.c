@@ -14,19 +14,12 @@ void InitProc(void) {
    p = (unsigned short *)0xb8000;
    while(1) {
       *p = '.' + VGA_MASK;
-      for(i=0; i< (LOOP/2); i++){
+      for(i=0; i<(LOOP/2); i++){
         asm("inb $0x80");
       }
       *p = ' ' + VGA_MASK;
       for(i=0; i<(LOOP/2); i++){
         asm("inb $0x80");
-      }
-      if (cons_kbhit()){
-        char ch = cons_getchar();
-        if (ch == 'b'){
-          cons_printf("breakpoint initProc");
-          breakpoint();
-         }
       }
    }
 }

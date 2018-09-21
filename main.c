@@ -72,7 +72,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
       breakpoint();
      }
      if (key == 'n') {                 // 'n' for new process
-      UserProc();
+      cons_printf("n was pressed for user proc");
+      NewProcISR(UserProc);
      }
    }
    Scheduler();                        //which may pick another proc
