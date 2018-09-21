@@ -25,17 +25,18 @@ void InitKernel(void) {             // init and set up kernel!
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
    outportb(PIC_MASK, MASK);                   // mask out PIC for timer
 
-   Bzero(&avail_q, sizeof(q_t));                      // clear 2 queues
-   Bzero(&ready_q, sizeof(q_t));
-   for(int i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
-     EnQ(&avail_q, i);
+   Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
+   Bzero((char *)&ready_q,sizeof(q_t));
+   for(i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
+     EnQ(i, &avail_q);
+   }
 }
 
 void Scheduler(void) {                         // choose a cur_pid to run
    if (cur_pid > 0) return;                    // a user PID is already picked
-   if (ready_q == 0 && cur_pid == 0) return;
-   if (ready_q == 0 && cur_pid == -1) {
-      cons_printf "Kernel panic: no process to run!\n);
+   if (QisEmpty(&ready_q) && cur_pid == 0) return;
+   if (QisEmpty(&ready_q) && cur_pid == -1) {
+      cons_printf("Kernel panic: no process to run!\n");
       breakpoint();                                  // to GDB we go
    }
 
@@ -44,7 +45,7 @@ void Scheduler(void) {                         // choose a cur_pid to run
    if (cur_pid != -1) {
      EnQ(cur_pid, &ready_q);
      pcb[cur_pid].state = READY;
-     cur_pid = ready_q[0];
+     cur_pid = ready_q.a[0];
    }
    pcb[cur_pid].time = 0;
    pcb[cur_pid].state = READY;
@@ -54,14 +55,14 @@ void Scheduler(void) {                         // choose a cur_pid to run
 
 int main(void) {                       // OS bootstraps
    //initialize the kernal-related stuff
-   NewProcISR(Init);                   // create InitProc
+   InitKernel();
+   InitProc();                         // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
    Loader(pcb[0].TF_p);                // load proc to run
    return 0;                           // compiler needs it for syntax
 }
 
 void TheKernel(TF_t *TF_p) {           // kernel runs
-   char ch;
    pcb[cur_pid].TF_p = TF_p;           // save TF address
    TimerISR();                         // handle timer event
 
@@ -70,9 +71,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      if (key == 'b') {                 // 'b' for breakpoint
       breakpoint();
      }
-     break;
      if (key == 'n') {                 // 'n' for new process
-      NewProcISR(UserProc);
+      UserProc();
      }
    }
    Scheduler();                        //which may pick another proc

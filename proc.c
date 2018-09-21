@@ -14,12 +14,19 @@ void InitProc(void) {
    p = (unsigned short *)0xb8000;
    while(1) {
       *p = '.' + VGA_MASK;
-      for(int i=0; i<= (LOOP/2); i++){
+      for(i=0; i< (LOOP/2); i++){
         asm("inb $0x80");
       }
       *p = ' ' + VGA_MASK;
-      for(int i=0; i<=(LOOP/2); i++){
+      for(i=0; i<(LOOP/2); i++){
         asm("inb $0x80");
+      }
+      if (cons_kbhit()){
+        char ch = cons_getchar();
+        if (ch == 'b'){
+          cons_printf("breakpoint initProc");
+          breakpoint();
+         }
       }
    }
 }
@@ -30,14 +37,14 @@ void UserProc(void) {
 
    while(1) {
       p = (unsigned short *)(0xb8000 + cur_pid);   //point p to (0xb8000 + offset according to PID)
-      cons_printf("%d", cur_pid);                  //show 1st digit of its PID
+      *p = cur_pid/10 + '0' + VGA_MASK;                 //show 1st digit of its PID
       p++;                                         //move p to next column
-      cons_printf("%d ", cur_pid);                 //show 2nd digit of its PID
-      for(int i=0; i<=(LOOP/2); i++){
+      *p = cur_pid%10 + '0' + VGA_MASK;                 //show 2nd digit of its PID
+      for(i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }
-      cons_printf("      ");                       //erase above writing
-      for (int i=0; i<=(LOOP/2); i++){
+      *p = ' ' + VGA_MASK;                       //erase above writing
+      for (i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }
    }

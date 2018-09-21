@@ -6,7 +6,8 @@
 
 // clear DRAM data block, zero-fill it
 void Bzero(char *p, int bytes) {
-   for(int i=0; i<bytes; i++){
+   int i;
+   for(i=0; i<bytes; i++){
      *p = (char)0;
      p++;
    }

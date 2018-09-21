@@ -22,7 +22,6 @@ ENTRY(TimerEntry)                  // will have efl, cs, eip pushed by hardware
    mov %ax, %ds                    // set kernel data segment registers
    mov %ax, %es                    // set kernel data segment registers
    leal k_stack + K_STACK_SIZE, %esp  // set esp to top of kernel stack
-   pushl ecx
+   pushl %ecx
    cld
-   call CNAME(TheKernal)
-
+   call CNAME(TheKernel)

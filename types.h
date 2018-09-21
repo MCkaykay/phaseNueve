@@ -18,7 +18,7 @@ typedef struct {
 
 typedef struct {
    int time;
-   int size;
+   int life;
    TF_t *TF_p;
    state_t state;
 } pcb_t;                     
