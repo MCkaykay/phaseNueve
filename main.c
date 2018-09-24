@@ -28,7 +28,7 @@ void InitKernel(void) {             // init and set up kernel!
    Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
    Bzero((char *)&ready_q,sizeof(q_t));
    for(i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
-     EnQ(i, &avail_q);
+     EnQ(i, &ready_q);
    }
 }
 
@@ -48,7 +48,7 @@ void Scheduler(void) {                         // choose a cur_pid to run
      cur_pid = ready_q.a[0];
    }
    pcb[cur_pid].time = 0;
-   pcb[cur_pid].state = READY;
+   pcb[cur_pid].state = AVAIL;
    // reset process time
    // change its state
 }
@@ -56,9 +56,9 @@ void Scheduler(void) {                         // choose a cur_pid to run
 int main(void) {                       // OS bootstraps
    //initialize the kernal-related stuff
    InitKernel();
-   InitProc();                         // create InitProc
+   NewProcISR(InitProc);                         // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
-   Loader(pcb[0].TF_p);                // load proc to run
+   Loader(pcb[cur_pid].TF_p);                // load proc to run
    return 0;                           // compiler needs it for syntax
 }
 

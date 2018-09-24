@@ -3,7 +3,9 @@
 #ifndef __ISR_H__
 #define __ISR_H__
 
-void NewProcISR(func_p_t p);
+#include "types.h"
+
+void NewProcISR(func_p_t);
 void TimerISR(void);
 
 #endif

@@ -6,11 +6,7 @@
 
 // clear DRAM data block, zero-fill it
 void Bzero(char *p, int bytes) {
-   int i;
-   for(i=0; i<bytes; i++){
-     *p = (char)0;
-     p++;
-   }
+   while(bytes--) *p++ = (char)0;
 }
 
 int QisEmpty(q_t *p) { // return 1 if empty, else 0

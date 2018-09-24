@@ -30,9 +30,9 @@ void UserProc(void) {
 
    while(1) {
       p = (unsigned short *)(0xb8000 + cur_pid);   //point p to (0xb8000 + offset according to PID)
-      *p = cur_pid/10 + '0' + VGA_MASK;                 //show 1st digit of its PID
+      *p = (cur_pid/10) + '0' + VGA_MASK;                 //show 1st digit of its PID
       p++;                                         //move p to next column
-      *p = cur_pid%10 + '0' + VGA_MASK;                 //show 2nd digit of its PID
+      *p = (cur_pid%10) + '0' + VGA_MASK;                 //show 2nd digit of its PID
       for(i=0; i<=(LOOP/2); i++){
         asm("inb $0x80");
       }

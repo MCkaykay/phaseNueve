@@ -22,7 +22,7 @@ void NewProcISR(func_p_t p) {  // arg: where process code starts
    Bzero((char*)&stack[pid],STACK_SIZE);        // clear stack
    pcb[pid].state= READY;                       // change process state
 
-   EnQ(pid, &avail_q);                          // queue it
+   EnQ(pid, &ready_q);                          // queue it
 
 // point TF_p to stack & fill it out
    pcb[pid].TF_p = (TF_t *)&stack[cur_pid][STACK_SIZE];                               
@@ -42,7 +42,8 @@ void TimerISR(void) {
    if(pcb[cur_pid].time == TIME_MAX) {              // if runs long enough
       EnQ(cur_pid, &ready_q);                         // move it back to ready_q
       pcb[cur_pid].state=READY;                       // change its state
-      cur_pid = -1;                                   // now no running proc
+      cur_pid = 0;                                   // now no running proc
    }
+   return;
 }
 
