@@ -10,4 +10,6 @@ extern int cur_pid;            // PID of current selected running process
 extern q_t ready_q, avail_q;
 extern pcb_t pcb[PROC_MAX];
 extern char stack[PROC_MAX][STACK_SIZE];
+extern int sys_ticks;
+extern unsigned short *video_p;
 #endif                         // endif of ifndef

@@ -1,44 +1,41 @@
 // proc.c, 159
-// all user processes are coded here
-// processes do not R/W kernel data or code, must use syscalls
+// all processes are coded here
+// processes do not access kernel data, must use syscalls
 
-#include "include.h"
-#include "data.h"
-#include "proc.h"
+#include "constants.h" // include only these 2 files
+#include "syscalls.h"
 
 void InitProc(void) {
    int i;
-   unsigned short *p;
 
-   //point p to 0xb8000; // upper-left corner of display
-   p = (unsigned short *)0xb8000;
    while(1) {
-      *p = '.' + VGA_MASK;
-      for(i=0; i<(LOOP/2); i++){
-        asm("inb $0x80");
-      }
-      *p = ' ' + VGA_MASK;
-      for(i=0; i<(LOOP/2); i++){
-        asm("inb $0x80");
-      }
+      SetVideo(1, 1);         // pos video
+      Write(STDOUT, ".");
+      for(i=0; i<LOOP/2; i++)asm("inb $0x80"); // busy CPU
+
+      SetVideo(1, 1);         // pos video
+      Write(STDOUT, " ");
+      for(i=0; i<LOOP/2; i++)asm("inb $0x80"); // busy CPU
    }
 }
 
 void UserProc(void) {
-   int i;
-   unsigned short *p;
+   int my_pid;
+   char str[3];
+
+   get my PID and make a string from it (null-delimited)
+
+   set video cursor to beginning of my row
+   write out that extra long msg to test line wrapped and erasure
+   sleep for 2 seconds
 
    while(1) {
-      p = (unsigned short *)(0xb8000 + cur_pid);   //point p to (0xb8000 + offset according to PID)
-      *p = (cur_pid/10) + '0' + VGA_MASK;                 //show 1st digit of its PID
-      p++;                                         //move p to next column
-      *p = (cur_pid%10) + '0' + VGA_MASK;                 //show 2nd digit of its PID
-      for(i=0; i<=(LOOP/2); i++){
-        asm("inb $0x80");
-      }
-      *p = ' ' + VGA_MASK;                       //erase above writing
-      for (i=0; i<=(LOOP/2); i++){
-        asm("inb $0x80");
-      }
+      call service to set video cursor to beginning of my row
+      call service to write out my PID str
+      call service to sleep for 2 seconds
+
+      call service to set video cursor to beginning of my row
+      call service to erase my PID str (with "--")
+      call service to sleep for 2 seconds
    }
 }

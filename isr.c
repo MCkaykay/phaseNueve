@@ -13,7 +13,7 @@ void NewProcISR(func_p_t p) {  // arg: where process code starts
    int pid;
 
    if(QisEmpty(&avail_q)) {    // may occur if too many been created
-      cons_printf("Kernel panic: no more process!\n");
+      cons_printf("Kkernel panic: no more process!\n");
       breakpoint();     // cannot continue, alternative: breakpoint();
    }
 
@@ -25,7 +25,7 @@ void NewProcISR(func_p_t p) {  // arg: where process code starts
    EnQ(pid, &ready_q);                          // queue it
 
 // point TF_p to stack & fill it out
-   pcb[pid].TF_p = (TF_t *)&stack[cur_pid][STACK_SIZE];                               
+   pcb[pid].TF_p = (TF_t *)&stack[pid][STACK_SIZE];                               
    pcb[pid].TF_p--;
    pcb[pid].TF_p->efl = EF_DEFAULT_VALUE|EF_INTR; // enables intr
    pcb[pid].TF_p->cs = get_cs();                  // duplicate from CPU
@@ -42,7 +42,7 @@ void TimerISR(void) {
    if(pcb[cur_pid].time == TIME_MAX) {              // if runs long enough
       EnQ(cur_pid, &ready_q);                         // move it back to ready_q
       pcb[cur_pid].state=READY;                       // change its state
-      cur_pid = 0;                                   // now no running proc
+      cur_pid = -1;                                   // now no running proc
    }
    return;
 }

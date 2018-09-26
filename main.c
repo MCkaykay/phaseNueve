@@ -16,6 +16,8 @@ int cur_pid;                        // current running PID; if -1, none selected
 q_t ready_q, avail_q;               // avail PID and those created/ready to run
 pcb_t pcb[PROC_MAX];                // Process Control Blocks
 char stack[PROC_MAX][STACK_SIZE];   // process runtime stacks
+int sys_ticks;                      // OS time (timer ticks), starting 0
+unsigned short *video_p;            // PC VGA video pointer, starting HOME_POS
 
 void InitKernel(void) {             // init and set up kernel!
    int i;
@@ -28,8 +30,10 @@ void InitKernel(void) {             // init and set up kernel!
    Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
    Bzero((char *)&ready_q,sizeof(q_t));
    for(i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
-     EnQ(i, &ready_q);
+     EnQ(i, &avail_q);
+     pcb[i].state=AVAIL;
    }
+   cur_pid= -1;
 }
 
 void Scheduler(void) {                         // choose a cur_pid to run
@@ -45,10 +49,10 @@ void Scheduler(void) {                         // choose a cur_pid to run
    if (cur_pid != -1) {
      EnQ(cur_pid, &ready_q);
      pcb[cur_pid].state = READY;
-     cur_pid = ready_q.a[0];
    }
+   cur_pid = DeQ(&ready_q);
    pcb[cur_pid].time = 0;
-   pcb[cur_pid].state = AVAIL;
+   pcb[cur_pid].state = RUN;
    // reset process time
    // change its state
 }
@@ -58,7 +62,7 @@ int main(void) {                       // OS bootstraps
    InitKernel();
    NewProcISR(InitProc);                         // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
-   Loader(pcb[cur_pid].TF_p);                // load proc to run
+   Loader(pcb[0].TF_p);                // load proc to run
    return 0;                           // compiler needs it for syntax
 }
 
@@ -72,7 +76,6 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
       breakpoint();
      }
      if (key == 'n') {                 // 'n' for new process
-      cons_printf("n was pressed for user proc");
       NewProcISR(UserProc);
      }
    }
