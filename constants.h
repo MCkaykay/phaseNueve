@@ -22,7 +22,7 @@
 #define SETVIDEO 100
 #define SYSCALL 128
 #define SLEEP 162
-#define HOME_POS ((unsigned short *)0xb8000
+#define HOME_POS (unsigned short *)0xb8000
 #define END_POS ((unsigned short *)0xb8000+24*80)
 
 #endif
