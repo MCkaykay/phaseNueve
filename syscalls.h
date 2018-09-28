@@ -1,7 +1,7 @@
 // syscalls.h, 159
 
-#ifndef __SYSCALLS_H__
-#define __SYSCALLS_H__
+#ifndef __SYSCALLS__
+#define __SYSCALLS__
 
 void Sleep(int);
 int GetPid(void);

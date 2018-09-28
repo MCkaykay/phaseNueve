@@ -95,7 +95,7 @@ void WriteISR(void){
       
       if (video_p - 80 == 0){
         for(j=0; j<=80; j++){
-          *video_p_copy = ' ' + VGA_MASK;
+          *video_p_copy = 0;
           video_p_copy++;
         }
       }

@@ -10,6 +10,7 @@
 #include "proc.h"     // all user process code here
 #include "isr.h"      // kernel ISR code
 #include "entry.h"    // entries to kernel (TimerEntry, etc.)
+#include "syscalls.h" 
 
 // kernel data are all here:
 int cur_pid;                        // current running PID; if -1, none selected
@@ -22,7 +23,7 @@ unsigned short *video_p;            // PC VGA video pointer, starting HOME_POS
 void InitKernel(void) {             // init and set up kernel!
    int i;
    struct i386_gate *IVT_p;         // IVT's DRAM location
-
+   
    IVT_p = get_idt_base();          // get IVT location
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
    fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for syscall
@@ -58,6 +59,8 @@ void Scheduler(void) {                         // choose a cur_pid to run
 
 int main(void) {                       // OS bootstraps
    //initialize the kernal-related stuff
+   video_p = HOME_POS;
+   sys_ticks=0;
    InitKernel();
    NewProcISR(InitProc);                         // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
