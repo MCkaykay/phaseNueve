@@ -44,6 +44,13 @@ void TimerISR(void) {
       pcb[cur_pid].state=READY;                       // change its state
       cur_pid = -1;                                   // now no running proc
    }
+   sys_ticks++;
+   for(i=0; i< PROC_MAX; i++){
+     if(pcb[i].state==SLEEPY && pcb[i].wake_time==sys_ticks){
+       EnQ(i, &ready_q);
+       pcb[i].state=READY;
+     }
+   }
    return;
 }
 
@@ -56,7 +63,8 @@ void SleepISR(void){
   // set the wake time in PCB of process cur_pid to cur OS time + sleep second * 100
   // change the state of process cur_pid
   // reset cur_pid to ...
-  pcb[cur_pid].wake_time = sys_ticks + 100 * (pcb[cur_pid].TF_p->ebx);
+  int sleep_sec = pcb[cur_pid].TF_p->ebx;
+  pcb[cur_pid].wake_time = sys_ticks + sleep_sec * 100;
   pcb[cur_pid].state = SLEEPY;
   cur_pid = -1;
 }
@@ -75,7 +83,29 @@ void WriteISR(void){
   char *str = pcb[cur_pid].TF_p->ecx;
 
   if(device == STDOUT) {
-
+    for(i=0; i<=sizeof(str); i++){
+      //if video_p is reaching END_POS then set back to HOME_POS
+      if (*video_p == END_POS){
+        *video_p = HOME_POS;
+      }
+      //if video_p apears at start of line then earse the entrie line
+      if (*video_p = HOME_POS){
+        for(int j=0; j<=80; j++){
+          *video_p = ' ' + VGA_MASK;
+        }
+      }
+      // if 'c' is not '\n' then
+      if (str[i] != '\n') {
+        // use video_p to write out 'c' and increment video_p
+        *video_p = str[i] + '0' + VGA_MASK;
+        video_p++;
+      }
+      else {
+        // calc column pos of current video_p
+        // the 'rest' = 80 - current column pos
+        // incr video_p by 'rest'
+       }
+    }
   }
 }
 
