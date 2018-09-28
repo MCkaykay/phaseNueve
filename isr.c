@@ -97,7 +97,8 @@ void WriteISR(void){
       // if 'c' is not '\n' then
       if (str[i] != '\n') {
         // use video_p to write out 'c' and increment video_p
-        *video_p = str[i] + '0' + VGA_MASK;
+        //*video_p = str[i] + '0' + VGA_MASK;
+        Write(STDOUT, str[i]);
         video_p++;
       }
       else {

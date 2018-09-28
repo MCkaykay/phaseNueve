@@ -23,19 +23,20 @@ void UserProc(void) {
    int my_pid;
    char str[3];
 
-   get my PID and make a string from it (null-delimited)
-
-   set video cursor to beginning of my row
-   write out that extra long msg to test line wrapped and erasure
-   sleep for 2 seconds
+   // get my PID and make a string from it (null-delimited)
+   my_pid = GetPid();
+   str = (str)my_pid;
+   SetVideo(1,1); // set video cursor to beginning of my row
+   Write(STDOUT, "Print this big ass sentence to ensure that this test line wraps around the screen and then check for erasure! :)");
+   Sleep(2); // sleep for 2 seconds
 
    while(1) {
-      call service to set video cursor to beginning of my row
-      call service to write out my PID str
-      call service to sleep for 2 seconds
+      SetVideo(1,1);         //call service to set video cursor to beginning of my row
+      Write(STDOUT, str);    //call service to write out my PID str
+      Sleep(2);
 
-      call service to set video cursor to beginning of my row
-      call service to erase my PID str (with "--")
-      call service to sleep for 2 seconds
+      SetVideo(1,1);         //call service to set video cursor to beginning of my row
+      Write(STDOUT, "--");   //call service to erase my PID str (with "--")
+      Sleep(2);
    }
 }

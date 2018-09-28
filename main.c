@@ -25,6 +25,7 @@ void InitKernel(void) {             // init and set up kernel!
 
    IVT_p = get_idt_base();          // get IVT location
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
+   fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0);
    outportb(PIC_MASK, MASK);                   // mask out PIC for timer
 
    Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
@@ -69,6 +70,18 @@ int main(void) {                       // OS bootstraps
 void TheKernel(TF_t *TF_p) {           // kernel runs
    pcb[cur_pid].TF_p = TF_p;           // save TF address
    TimerISR();                         // handle timer event
+
+   switch(TF_p->entry){
+     case TIMER:
+      TimerISR();
+      break;
+     case SYSCALL:
+      if (TF_p->eax == WRITE) WriteISR();
+      if (TF_p->eax == SLEEP)  SleepISR();
+      if (TF_p->eax == GETPID)  GetPidISR();
+      if (TF_p->eax == SETVIDEO)  SetVideoISR();
+      break;
+   }
 
    if (cons_kbhit()) {                 // if keyboard is pressed
      char key = cons_getchar();
