@@ -25,7 +25,7 @@ void InitKernel(void) {             // init and set up kernel!
 
    IVT_p = get_idt_base();          // get IVT location
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
-   fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0);
+   fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for syscall
    outportb(PIC_MASK, MASK);                   // mask out PIC for timer
 
    Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
@@ -52,10 +52,8 @@ void Scheduler(void) {                         // choose a cur_pid to run
      pcb[cur_pid].state = READY;
    }
    cur_pid = DeQ(&ready_q);
-   pcb[cur_pid].time = 0;
-   pcb[cur_pid].state = RUN;
-   // reset process time
-   // change its state
+   pcb[cur_pid].time = 0;              // reset process time
+   pcb[cur_pid].state = RUN;           // change its state
 }
 
 int main(void) {                       // OS bootstraps
@@ -69,8 +67,7 @@ int main(void) {                       // OS bootstraps
 
 void TheKernel(TF_t *TF_p) {           // kernel runs
    pcb[cur_pid].TF_p = TF_p;           // save TF address
-   TimerISR();                         // handle timer event
-
+   
    switch(TF_p->entry){
      case TIMER:
       TimerISR();
@@ -95,4 +92,3 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
    Scheduler();                        //which may pick another proc
    Loader(pcb[cur_pid].TF_p);          //load proc to run!
 }
-
