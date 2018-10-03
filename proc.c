@@ -52,18 +52,20 @@ void CarProc(void){
    str[0] = my_pid / 10 + '0';
    str[1] = my_pid % 10 + '0';
    str[2] = '\0';
+   
    SetVideo(my_pid + 1, 1);           // show pid on beginning of 'my' row
+   Write(STDOUT, str);
 
    while(1){
      // show: I'm off ... on my row (skip my PID, don't overwrite it)
-     SetVideo(my_pid + 2, 1);
-     Write(STDOUT, "I'm off .. on my row");
+     SetVideo(my_pid + 1, 10);
+     Write(STDOUT, "I'm off ...       "); // show: I'm off ... on my row (skip my PID, don't overwrite it)
      Sleep(2);                        // sleep for 2 seconds 
 
      SemWait(car_sem);                // semaphore-wait on the car semaphore
-     // show: I'm on the bridge! (on the same location to overwrite above)
-     SetVideo(my_pid + 2, 1);
-     Write(STDOUT, "I'm on the bridge!");
+     
+     SetVideo(my_pid + 1, 10);
+     Write(STDOUT, "I'm on the bridge!"); // show: I'm on the bridge! (on the same location to overwrite above)
      Sleep(2);                        // sleep for 2 seconds
      SemPost(car_sem);                // semaphore-post on the car semaphore
    }

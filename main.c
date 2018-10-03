@@ -40,6 +40,11 @@ void InitKernel(void) {             // init and set up kernel!
      pcb[i].state=AVAIL;
    }
    cur_pid= -1;
+   Bzero((char *)&sem_q, sizeof(q_t));
+   for(i=0; i<= SEM_MAX-1; i++){
+     EnQ(i, &sem_q);
+   }
+   car_sem = 0;
 }
 
 void Scheduler(void) {                         // choose a cur_pid to run
@@ -95,7 +100,7 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
        NewProcISR(UserProc);
      }
      if (key == 'c') {                 // 'c' to create CarProc() 
-       CarProc();
+       NewProcISR(CarProc);
      }
    }
    Scheduler();                        //which may pick another proc

@@ -101,25 +101,48 @@ void WriteISR(void){
 void SemInitISR(void){
    // allocates a semaphore from the OS semaphore queue, empty it, and set the passes
    // retrun the semaphore ID via the trapframe
+   //*(HOME_POS + 21 * 80) = sem[sem_id].passes + '0' + VGA_MASK;
+   unsigned short * p;
+   int sem_id, passes;
+   sem_id = DeQ(&sem_q);
+   if (sem_id == -1) {
+     cons_printf("kjdhgjd\n");
+     breakpoint();
+   }
+   passes = pcb[cur_pid].TF_p->ebx;
+   Bzero(&sem[sem_id], sizeof(sem_t));
+   sem[sem_id].passes = passes;
+   p= HOME_POS + 21 * 80;
+   *p = sem[sem_id].passes + '0' + VGA_MASK;
 }
 
 void SemWaitISR(void){
-   // decrement the passes in the semaphore by 1 if it has any left (greater than 0)
-   // otherwise, the calling process will be blocked: its PID is queued to the wait queue in the semaphore, state changed to WAIT, and OS current pid is reset
-
+   unsigned short *p;
+   int sem_id = pcb[cur_pid].TF_p->ebx;
+   if (sem[sem_id].passes > 0){       // decrement the passes in the semaphore by 1 if it has any left (greater than 0)
+    sem[sem_id].passes--;
+   }
+   else{
+    EnQ(cur_pid, &sem[sem_id].wait_q);
+    pcb[cur_pid].state = WAIT;
+    cur_pid = -1;
+   }
+   p = HOME_POS + 21 * 80;
+   *p = sem[sem_id].passes + '0' + VGA_MASK;
 }
 
 void SemPostISR(void){
-   // checks if there is any blocked process in the wait queue of the semaphore
-   int sem_id = pcb[cur_pid].TF_p->ebx;
-   if (QisEmpty(&(sem[sem_id].wait_q))){
-     sem[sem_id].passes++;
+   unsigned short *p;
+   int pid, sem_id;
+   sem_id = pcb[cur_pid].TF_p->ebx; 
+   if (QisEmpty(&(sem[sem_id].wait_q))){          // check if there is any blocked process in the wait queue of the sem
+     sem[sem_id].passes++;                        // if none, increment the semaphore passes by 1
    }
-   else{
-   
+   else{                                          // otherwise, move the 1st PID in the wait queue of the sem to the ready-to-run PID queue
+     pid = DeQ(&sem[sem_id].wait_q);
+     EnQ(pid, &ready_q);
+     pcb[cur_pid].state = READY;                  // update the state
    }
-
-   // if none, increment the semaphore passes by 1
-   // otherwise, move the 1st PID in the wait queue of the semaphore to the ready-to-run PID queue, and update its state
-    
+   p = HOME_POS + 21 * 80;
+   *p = sem[sem_id].passes + '0' + VGA_MASK;
 }
