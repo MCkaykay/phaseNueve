@@ -13,7 +13,7 @@ void NewProcISR(func_p_t p) {  // arg: where process code starts
    int pid;
 
    if(QisEmpty(&avail_q)) {    // may occur if too many been created
-      cons_printf("Kkernel panic: no more process!\n");
+      cons_printf("Kernel panic: no more process!\n");
       breakpoint();     // cannot continue, alternative: breakpoint();
    }
 
@@ -52,7 +52,6 @@ void TimerISR(void) {
        pcb[i].state=READY;
      }
    }
-   return;
 }
 
 void GetPidISR(void){
@@ -76,42 +75,36 @@ void SetVideoISR(void){
   //set video pointer(video_p) to: HOME_POS + (row-1) * 80 + (col-1)
   int row = pcb[cur_pid].TF_p->ebx;
   int col = pcb[cur_pid].TF_p->ecx;
-  video_p = (unsigned short*)(HOME_POS+ (row-1) * 80 + (col-1));
+  video_p = (unsigned short*)(HOME_POS + (row-1) * 80 + (col-1));
 }
 
 void WriteISR(void){
   int device = (int)pcb[cur_pid].TF_p->ebx;
   char *str = (char *)pcb[cur_pid].TF_p->ecx;
-  int i,j;
+  unsigned short col_pos;
+  unsigned short rest;
+  int i;
   unsigned short *video_p_copy;
   video_p = video_p_copy;
   if(device == STDOUT) {
-    for(i=0; i<=sizeof(str); i++){
+    for(i=0; i<=strlen(str); i++){
       //if video_p is reaching END_POS then set back to HOME_POS
-      if (video_p == END_POS){
-        video_p = HOME_POS;
-      }
+      if (video_p >= END_POS) video_p = HOME_POS;
       //if video_p apears at start of line then earse the entrie line
-      
-      if (video_p - 80 == 0){
-        for(j=0; j<=80; j++){
-          *video_p_copy = 0;
-          video_p_copy++;
-        }
-      }
+      if ((video_p - HOME_POS)%80 == 0) Bzero((char *)video_p, 160);
       // if 'c' is not '\n' then
       if (str[i] != '\n') {
         // use video_p to write out 'c' and increment video_p
-        *video_p = str[i] + '0' + VGA_MASK;
+        *video_p = str[i] + VGA_MASK;
         video_p++;
       }
       else {
         // calc column pos of current video_p
         // the 'rest' = 80 - current column pos
         // incr video_p by 'rest'
-       int column_pos = *video_p % 80;
-       int rest = 80 - column_pos;
-       video_p += rest; 
+       col_pos = (video_p - HOME_POS) %80;
+       rest = 80 - col_pos;
+       video_p = video_p + rest; 
      }
     }
   }

@@ -23,7 +23,7 @@ typedef struct {
 } pcb_t;                     
 
 typedef struct {             // generic queue type
-  int a[20];                        // for a circular queue
+  int q[Q_SIZE];             // for a circular queue
   int head, tail, size; 
 } q_t;
 

@@ -72,15 +72,11 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
    pcb[cur_pid].TF_p = TF_p;           // save TF address
    
    switch(TF_p->entry){
-     case TIMER:
-      TimerISR();
-      break;
-     case SYSCALL:
-      if (TF_p->eax == WRITE) WriteISR();
-      if (TF_p->eax == SLEEP)  SleepISR();
-      if (TF_p->eax == GETPID)  GetPidISR();
-      if (TF_p->eax == SETVIDEO)  SetVideoISR();
-      break;
+     case TIMER: TimerISR(); break;
+     case WRITE: WriteISR(); break;
+     case SLEEP: SleepISR(); break;
+     case GETPID: GetPidISR(); break;
+     case SETVIDEO: SetVideoISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed
