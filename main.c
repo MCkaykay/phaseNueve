@@ -62,7 +62,7 @@ int main(void) {                       // OS bootstraps
    video_p = HOME_POS;
    sys_ticks=0;
    InitKernel();
-   NewProcISR(InitProc);                         // create InitProc
+   NewProcISR(InitProc);               // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
    Loader(pcb[0].TF_p);                // load proc to run
    return 0;                           // compiler needs it for syntax

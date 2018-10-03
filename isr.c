@@ -40,7 +40,7 @@ void TimerISR(void) {
    pcb[cur_pid].time++;                               // count up time
    pcb[cur_pid].life++;                               // count up life
 
-   if(pcb[cur_pid].time == TIME_MAX) {              // if runs long enough
+   if(pcb[cur_pid].time == TIME_MAX) {                // if runs long enough
       EnQ(cur_pid, &ready_q);                         // move it back to ready_q
       pcb[cur_pid].state=READY;                       // change its state
       cur_pid = -1;                                   // now no running proc
@@ -59,39 +59,30 @@ void GetPidISR(void){
 }
 
 void SleepISR(void){
-  // get sleep second from ebx of the TF of process cur_pid
-  // set the wake time in PCB of process cur_pid to cur OS time + sleep second * 100
-  // change the state of process cur_pid
-  // reset cur_pid to ...
-  int sleep_sec = pcb[cur_pid].TF_p->ebx;
-  pcb[cur_pid].wake_time = sys_ticks + sleep_sec * 100;
-  pcb[cur_pid].state = SLEEPY;
-  cur_pid = -1;
+  int sleep_sec = pcb[cur_pid].TF_p->ebx;       // get sleep second from ebx of the TF of process cur_pid
+  pcb[cur_pid].wake_time = sys_ticks + sleep_sec * 100;  // set the wake time in PCB of process cur_pid
+  pcb[cur_pid].state = SLEEPY;                  // change the state of process cur_pid
+  cur_pid = -1;                                 // reset cur_pid
 }
 
 void SetVideoISR(void){
-  //get row from ebx in TF of process cur_pid
-  //get col from ecx in TF of process cur_pid
-  //set video pointer(video_p) to: HOME_POS + (row-1) * 80 + (col-1)
-  int row = pcb[cur_pid].TF_p->ebx;
-  int col = pcb[cur_pid].TF_p->ecx;
-  video_p = (unsigned short*)(HOME_POS + (row-1) * 80 + (col-1));
+  int row = pcb[cur_pid].TF_p->ebx;             // get row from ebx in TF of process cur_pid
+  int col = pcb[cur_pid].TF_p->ecx;             // get col from ecx in TF of process cur_pid
+  video_p = HOME_POS + (row-1) * 80 + (col-1);
 }
 
 void WriteISR(void){
-  int device = (int)pcb[cur_pid].TF_p->ebx;
+  int device = pcb[cur_pid].TF_p->ebx;
   char *str = (char *)pcb[cur_pid].TF_p->ecx;
   unsigned short col_pos;
   unsigned short rest;
   int i;
-  unsigned short *video_p_copy;
-  video_p = video_p_copy;
   if(device == STDOUT) {
     for(i=0; i<=strlen(str); i++){
       //if video_p is reaching END_POS then set back to HOME_POS
       if (video_p >= END_POS) video_p = HOME_POS;
       //if video_p apears at start of line then earse the entrie line
-      if ((video_p - HOME_POS)%80 == 0) Bzero((char *)video_p, 160);
+      if ((video_p - HOME_POS) % 80 == 0) Bzero((char *)video_p, 160);
       // if 'c' is not '\n' then
       if (str[i] != '\n') {
         // use video_p to write out 'c' and increment video_p
@@ -99,12 +90,9 @@ void WriteISR(void){
         video_p++;
       }
       else {
-        // calc column pos of current video_p
-        // the 'rest' = 80 - current column pos
-        // incr video_p by 'rest'
-       col_pos = (video_p - HOME_POS) %80;
-       rest = 80 - col_pos;
-       video_p = video_p + rest; 
+       col_pos = (video_p - HOME_POS) % 80; // calc column pos of current video_p
+       rest = 80 - col_pos;                 // the 'rest' = 80 - current column pos
+       video_p = video_p + rest;            // incr video_p by 'rest'
      }
     }
   }

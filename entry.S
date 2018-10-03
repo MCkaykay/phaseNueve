@@ -18,7 +18,7 @@ ENTRY(Loader)
 
 // build/push TF then go to kernel
 ENTRY(TimerEntry)
-   pushl $TIMER                // push the timer entry number ($TIMER)
+   pushl $TIMER             // push the timer entry number ($TIMER)
    jmp CommonRoutine        // jump to the common routine
 
 ENTRY(SyscallEntry)
@@ -26,7 +26,7 @@ ENTRY(SyscallEntry)
    jmp CommonRoutine        // jump to the common routine
 
 CommonRoutine:
-   pusha   // push all: eax ecx edx ebx esp ebp esi edi
+   pusha                    // push all: eax ecx edx ebx esp ebp esi edi
    movl %esp, %ecx          // copy esp
    movw $0x10, %ax          // put 16 to ax
    mov %ax, %ds             // set kernel data segment registers ds
