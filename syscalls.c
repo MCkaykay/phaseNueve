@@ -49,3 +49,35 @@ void Write(int device, char *str) {
     );
 }
 
+int SemInit(int passes){
+   int return_value;
+   asm("movl %1, %%eax;
+        movl %2, %%ebx;
+        int $128;
+        movl %%ecx, %0"
+       : "=g" (return_value)
+       : "g" (SEMINIT), "g" (passes)
+       : "eax", "ebx", "ecx"
+    );
+    return return_value;
+}
+
+void SemWait(int passes){
+   asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        int $128"
+       :
+       : "g" (SEMWAIT), "g" (passes)
+       : "eax", "ebx"
+    );
+}
+
+void SemPost(int passes){
+   asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        int $128"
+       :
+       : "g" (SEMPOST), "g" (passes)
+       : "eax", "ebx"
+    );
+}

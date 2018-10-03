@@ -19,6 +19,10 @@ pcb_t pcb[PROC_MAX];                // Process Control Blocks
 char stack[PROC_MAX][STACK_SIZE];   // process runtime stacks
 int sys_ticks;                      // OS time (timer ticks), starting 0
 unsigned short *video_p;            // PC VGA video pointer, starting HOME_POS
+sem_t sem[SEM_MAX];                 // kernel has these semaphores
+q_t sem_q;                          // semaphore ID's are intially queued here
+int car_sem;                        // to hold a semaphore ID for testing
+
 
 void InitKernel(void) {             // init and set up kernel!
    int i;
@@ -77,15 +81,21 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case SLEEP: SleepISR(); break;
      case GETPID: GetPidISR(); break;
      case SETVIDEO: SetVideoISR(); break;
+     case SEMINIT: SemInitISR(); break;
+     case SEMWAIT: SemWaitISR(); break;
+     case SEMPOST: SemPostISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed
      char key = cons_getchar();
      if (key == 'b') {                 // 'b' for breakpoint
-      breakpoint();
+       breakpoint();
      }
      if (key == 'n') {                 // 'n' for new process
-      NewProcISR(UserProc);
+       NewProcISR(UserProc);
+     }
+     if (key == 'c') {                 // 'c' to create CarProc() 
+       CarProc();
      }
    }
    Scheduler();                        //which may pick another proc

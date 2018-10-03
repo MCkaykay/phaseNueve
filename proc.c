@@ -4,10 +4,11 @@
 
 #include "constants.h" // include only these 2 files
 #include "syscalls.h"
+#include "data.h"
 
 void InitProc(void) {
    int i;
-
+   car_sem = SemInit(3);
    while(1) {
       SetVideo(1, 1);         // pos video
       Write(STDOUT, ".");
@@ -40,5 +41,30 @@ void UserProc(void) {
       SetVideo(my_pid + 1, 1);         //call service to set video cursor to beginning of my row
       Write(STDOUT, "--");             //call service to erase my PID str (with "--")
       Sleep(2);
+   }
+}
+
+void CarProc(void){
+   // get my pid and build a str
+   int my_pid;
+   char str[3];
+   my_pid = GetPid();
+   str[0] = my_pid / 10 + '0';
+   str[1] = my_pid % 10 + '0';
+   str[2] = '\0';
+   SetVideo(my_pid + 1, 1);           // show pid on beginning of 'my' row
+
+   while(1){
+     // show: I'm off ... on my row (skip my PID, don't overwrite it)
+     SetVideo(my_pid + 2, 1);
+     Write(STDOUT, "I'm off .. on my row");
+     Sleep(2);                        // sleep for 2 seconds 
+
+     SemWait(car_sem);                // semaphore-wait on the car semaphore
+     // show: I'm on the bridge! (on the same location to overwrite above)
+     SetVideo(my_pid + 2, 1);
+     Write(STDOUT, "I'm on the bridge!");
+     Sleep(2);                        // sleep for 2 seconds
+     SemPost(car_sem);                // semaphore-post on the car semaphore
    }
 }

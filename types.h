@@ -7,7 +7,7 @@
 
 typedef void (*func_p_t)(void); // void-return function pointer type
 
-typedef enum {AVAIL, READY, RUN, SLEEPY} state_t;
+typedef enum {AVAIL, READY, RUN, SLEEPY, WAIT} state_t;
 
 typedef struct {
    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
@@ -26,5 +26,10 @@ typedef struct {             // generic queue type
   int q[Q_SIZE];             // for a circular queue
   int head, tail, size; 
 } q_t;
+
+typedef struct {
+  int passes;                // max # of processes that can pass
+  q_t wait_q;                // blocked proc ID's
+} sem_t;
 
 #endif

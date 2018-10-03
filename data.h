@@ -13,5 +13,8 @@ extern pcb_t pcb[PROC_MAX];
 extern char stack[PROC_MAX][STACK_SIZE];
 extern int sys_ticks;
 extern unsigned short *video_p;
+extern sem_t sem[SEM_MAX];
+extern q_t sem_q;
+extern int car_sem;
 
 #endif                         // endif of ifndef

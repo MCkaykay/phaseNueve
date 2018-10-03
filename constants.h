@@ -25,4 +25,9 @@
 #define HOME_POS (unsigned short *)0xb8000
 #define END_POS ((unsigned short *)0xb8000+24*80)
 
+#define SEM_MAX 20           // kernel has 20 semaphores to dispatch
+#define SEMINIT 101          // service # to request for a semaphore
+#define SEMWAIT 102          // service # to sem-wait
+#define SEMPOST 103          // service # to sem-post
+
 #endif

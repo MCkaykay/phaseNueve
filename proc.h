@@ -5,6 +5,7 @@
 
 void InitProc(void);
 void UserProc(void);
+void CarProc(void);
 
 #endif
 
