@@ -99,13 +99,27 @@ void WriteISR(void){
 }
 
 void SemInitISR(void){
-
+   // allocates a semaphore from the OS semaphore queue, empty it, and set the passes
+   // retrun the semaphore ID via the trapframe
 }
 
 void SemWaitISR(void){
+   // decrement the passes in the semaphore by 1 if it has any left (greater than 0)
+   // otherwise, the calling process will be blocked: its PID is queued to the wait queue in the semaphore, state changed to WAIT, and OS current pid is reset
 
 }
 
 void SemPostISR(void){
+   // checks if there is any blocked process in the wait queue of the semaphore
+   int sem_id = pcb[cur_pid].TF_p->ebx;
+   if (QisEmpty(&(sem[sem_id].wait_q))){
+     sem[sem_id].passes++;
+   }
+   else{
+   
+   }
 
+   // if none, increment the semaphore passes by 1
+   // otherwise, move the 1st PID in the wait queue of the semaphore to the ready-to-run PID queue, and update its state
+    
 }
