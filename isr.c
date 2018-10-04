@@ -106,11 +106,11 @@ void SemInitISR(void){
    int sem_id, passes;
    sem_id = DeQ(&sem_q);
    if (sem_id == -1) {
-     cons_printf("kjdhgjd\n");
+     cons_printf("Kernal Panic: no more semaphores\n");
      breakpoint();
    }
    passes = pcb[cur_pid].TF_p->ebx;
-   Bzero(&sem[sem_id], sizeof(sem_t));
+   Bzero((char *)&sem[sem_id], sizeof(sem_t));
    sem[sem_id].passes = passes;
    p= HOME_POS + 21 * 80;
    *p = sem[sem_id].passes + '0' + VGA_MASK;
