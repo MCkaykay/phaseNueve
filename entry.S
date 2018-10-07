@@ -25,6 +25,12 @@ ENTRY(SyscallEntry)
    pushl %eax               // push eax register which has the entry number (via syscall)
    jmp CommonRoutine        // jump to the common routine
 
+ENTRY(Term0Entry)
+   pushl $TERM0
+
+ENTRY(Term1Entry)
+   pushl $TERM1
+
 CommonRoutine:
    pusha                    // push all: eax ecx edx ebx esp ebp esi edi
    movl %esp, %ecx          // copy esp

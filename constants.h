@@ -6,7 +6,7 @@
 #define VGA_MASK 0x0f00     // foreground bright white, background black
 #define TIMER 32            // TIMER constant identifier
 #define PIC_MASK 0x21       // Programmable Interrupt Controller I/O
-#define MASK ~0x01          // mask for Programmable Interrupt Controller
+//#define MASK ~0x01          // mask for Programmable Interrupt Controller
 #define PIC_CONTROL 0x20    // Programmable Interrupt Controller I/O
 #define DONE 0x60
 
@@ -29,5 +29,14 @@
 #define SEMINIT 101          // service # to request for a semaphore
 #define SEMWAIT 102          // service # to sem-wait
 #define SEMPOST 103          // service # to sem-post
+
+#define MASK ~0x19           // new mask for Programmable Interrupt Controller
+#define TERM_MAX 2           // there is two terminal ports
+#define TERM0 35             // TERM0
+#define TERM1 36             // TERM1
+#define TERM0_IO 0x2f8       // I/O # of PC COM2
+#define TERM1_IO 0x3e8       // I/O # of PC COM3
+#define TERM0_DONE 0x63      // done signal to send to PIC
+#define TERM1_DONE 0x64      // done signal to send to PIC
 
 #endif

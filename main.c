@@ -22,7 +22,7 @@ unsigned short *video_p;            // PC VGA video pointer, starting HOME_POS
 sem_t sem[SEM_MAX];                 // kernel has these semaphores
 q_t sem_q;                          // semaphore ID's are intially queued here
 int car_sem;                        // to hold a semaphore ID for testing
-
+term_if_t maxterm[TERM_MAX];
 
 void InitKernel(void) {             // init and set up kernel!
    int i;
@@ -89,6 +89,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case SEMINIT: SemInitISR(); break;
      case SEMWAIT: SemWaitISR(); break;
      case SEMPOST: SemPostISR(); break;
+     case TERM0: Term0ISR(); break;
+     case TERM1: Term1ISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed
@@ -101,6 +103,9 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      }
      if (key == 'c') {                 // 'c' to create CarProc() 
        NewProcISR(CarProc);
+     }
+     if (key == 't'){
+       NewProcISR(TermProc);           // 't' to request outputs to a terminal
      }
    }
    Scheduler();                        //which may pick another proc

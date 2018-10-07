@@ -16,5 +16,6 @@ extern unsigned short *video_p;
 extern sem_t sem[SEM_MAX];
 extern q_t sem_q;
 extern int car_sem;
+extern term_if_t maxterm[TERM_MAX];
 
 #endif                         // endif of ifndef

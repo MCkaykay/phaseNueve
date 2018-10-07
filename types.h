@@ -32,4 +32,11 @@ typedef struct {
   q_t wait_q;                // blocked proc ID's
 } sem_t;
 
+typedef struct {
+  int io;                    // I/O # of terminal port (TERM0_IO and TERM1_IO)
+  int done;                  // done signal to PIC (TERM0_DONE and TERM1_DONE)
+  char *tx_p;                // point to a character in the string
+  q_t tx_wait_q;             // TX requester (wait for completion)
+} term_if_t;
+
 #endif

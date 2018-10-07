@@ -69,3 +69,38 @@ void CarProc(void){
      SemPost(car_sem);                // semaphore-post on the car semaphore
    }
 }
+
+void TermInit(int index) {
+  // clear the terminal interfaced (that is being indexed)
+  // set the 'io' in the interface to either TERM_IO or TERM1_IO
+  // set the 'done' to either TERM0_DONE or TERM1_DONE
+  outportb(term_if[which].io+CFCR, CFCR_DLAB); // CFCR_DLAB is 0x80
+  outportb(term_if[which].io+BAUDLO, LOBYTE(115200/9600)); // period of each 9600 bauds
+  outportb(term_if[which].io+BAUDHI, HIBYTE(115200/9600));
+  outportb(term_if[which].io+CFCR, CFCR_PEVEN|CFCR_PENAB|CFCR_7BITS);
+  outportb(term_if[which].io+IER, 0);
+  outportb(term_if[which].io+MCR, MCR_DTR|MCR_RTS|MCR_IENABLE);
+  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
+  outportb(term_if[which].io+IER, IER_ERXRDY|IER_ETXRDY); // enable TX & RX intr
+  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
+  inportb(term_if[which].io);                             // clear key cleared PROCOMM screen 
+}
+
+void TermProc(void){
+  int my_pid, device;
+  char str[3];
+
+  my_pid = GetPid();
+  str[0] = my_pid / 10 + '0';
+  str[1] = my_pid % 10 + '0';
+  str[2] = '\0';
+
+  // determine what my 'device' should be (even PID TERM0, odd TERM1)
+  
+  while(1){
+    // every 5 lines Write() to my device some special symbols (help viewing)
+    // Write() 'str' to my device
+    // Write() a lengthier message (see demo) to my device
+    Sleep(3) // sleep for 3 seconds
+  }
+}

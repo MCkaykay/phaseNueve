@@ -143,3 +143,11 @@ void SemPostISR(void){
    p = HOME_POS + 21 * 80;
    *p = sem[sem_id].passes + '0' + VGA_MASK;
 }
+
+void Term0ISR(void) {
+
+}
+
+void Term1ISR(void){
+
+}
