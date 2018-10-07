@@ -57,7 +57,6 @@ void CarProc(void){
    Write(STDOUT, str);
 
    while(1){
-     // show: I'm off ... on my row (skip my PID, don't overwrite it)
      SetVideo(my_pid + 1, 10);
      Write(STDOUT, "I'm off ...       "); // show: I'm off ... on my row (skip my PID, don't overwrite it)
      Sleep(2);                        // sleep for 2 seconds 

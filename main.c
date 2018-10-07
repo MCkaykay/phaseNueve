@@ -31,11 +31,11 @@ void InitKernel(void) {             // init and set up kernel!
    IVT_p = get_idt_base();          // get IVT location
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
    fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for syscall
-   outportb(PIC_MASK, MASK);                   // mask out PIC for timer
+   outportb(PIC_MASK, MASK);        // mask out PIC for timer
 
-   Bzero((char *)&avail_q,sizeof(q_t));                      // clear 2 queues
+   Bzero((char *)&avail_q,sizeof(q_t)); // clear 2 queues
    Bzero((char *)&ready_q,sizeof(q_t));
-   for(i=0; i<= PROC_MAX-1; i++){                 // add all avail PID's to the queue
+   for(i=0; i<= PROC_MAX-1; i++){       // add all avail PID's to the queue
      EnQ(i, &avail_q);
      pcb[i].state=AVAIL;
    }

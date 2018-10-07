@@ -99,9 +99,6 @@ void WriteISR(void){
 }
 
 void SemInitISR(void){
-   // allocates a semaphore from the OS semaphore queue, empty it, and set the passes
-   // retrun the semaphore ID via the trapframe
-   //*(HOME_POS + 21 * 80) = sem[sem_id].passes + '0' + VGA_MASK;
    unsigned short * p;
    int sem_id, passes;
    sem_id = DeQ(&sem_q);
