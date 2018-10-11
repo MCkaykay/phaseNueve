@@ -27,9 +27,11 @@ ENTRY(SyscallEntry)
 
 ENTRY(Term0Entry)
    pushl $TERM0
+   jmp CommonRoutine
 
 ENTRY(Term1Entry)
    pushl $TERM1
+   jmp CommonRoutine
 
 CommonRoutine:
    pusha                    // push all: eax ecx edx ebx esp ebp esi edi

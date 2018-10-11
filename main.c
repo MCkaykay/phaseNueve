@@ -22,7 +22,7 @@ unsigned short *video_p;            // PC VGA video pointer, starting HOME_POS
 sem_t sem[SEM_MAX];                 // kernel has these semaphores
 q_t sem_q;                          // semaphore ID's are intially queued here
 int car_sem;                        // to hold a semaphore ID for testing
-term_if_t maxterm[TERM_MAX];
+term_if_t term_if[TERM_MAX];
 
 void InitKernel(void) {             // init and set up kernel!
    int i;
@@ -31,6 +31,8 @@ void InitKernel(void) {             // init and set up kernel!
    IVT_p = get_idt_base();          // get IVT location
    fill_gate(&IVT_p[TIMER], (int)TimerEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for timer
    fill_gate(&IVT_p[SYSCALL], (int)SyscallEntry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for syscall
+   fill_gate(&IVT_p[TERM0], (int)Term0Entry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for terminal 0
+   fill_gate(&IVT_p[TERM1], (int)Term1Entry, get_cs(), ACC_INTR_GATE, 0); // fill out IVT for terminal 1
    outportb(PIC_MASK, MASK);        // mask out PIC for timer
 
    Bzero((char *)&avail_q,sizeof(q_t)); // clear 2 queues
@@ -45,6 +47,8 @@ void InitKernel(void) {             // init and set up kernel!
      EnQ(i, &sem_q);
    }
    car_sem = 0;
+   video_p = HOME_POS;
+   sys_ticks=0;
 }
 
 void Scheduler(void) {                         // choose a cur_pid to run
@@ -68,8 +72,6 @@ void Scheduler(void) {                         // choose a cur_pid to run
 
 int main(void) {                       // OS bootstraps
    //initialize the kernal-related stuff
-   video_p = HOME_POS;
-   sys_ticks=0;
    InitKernel();
    NewProcISR(InitProc);               // create InitProc
    Scheduler();                        // call scheduler to set cur_pid to 1st PID
@@ -89,8 +91,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case SEMINIT: SemInitISR(); break;
      case SEMWAIT: SemWaitISR(); break;
      case SEMPOST: SemPostISR(); break;
-     case TERM0: Term0ISR(); break;
-     case TERM1: Term1ISR(); break;
+     case TERM0: TermISR(0); break;
+     case TERM1: TermISR(1); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed

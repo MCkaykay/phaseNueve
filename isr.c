@@ -144,10 +144,6 @@ void SemPostISR(void){
    *p = sem[sem_id].passes + '0' + VGA_MASK;
 }
 
-void Term0ISR(void) {
-
-}
-
-void Term1ISR(void){
-
+void TermISR(int index) {
+   
 }

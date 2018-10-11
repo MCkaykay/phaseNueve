@@ -44,7 +44,7 @@ void Write(int device, char *str) {
         movl %2, %%ecx;
         int $128"
        :
-       : "g" (WRITE), "g" (device), "g" (str)
+       : "g" (WRITE), "g" (device), "g" ((int)str)
        : "eax", "ebx", "ecx"
     );
 }
