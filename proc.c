@@ -71,9 +71,17 @@ void CarProc(void){
 }
 
 void TermInit(int index) {
-  // clear the terminal interfaced (that is being indexed)
-  // set the 'io' in the interface to either TERM_IO or TERM1_IO
+  Bzero((char *)&term_if[index], sizeof(term_if_t));// clear the terminal interfaced (that is being indexed)
+  // set the 'io' in the interface to either TERM0_IO or TERM1_IO
   // set the 'done' to either TERM0_DONE or TERM1_DONE
+  if(index ==0){
+    term_if[index].io = TERM0_IO;
+    term_if[index].done = TERM0_DONE;
+  }
+  if(index ==1){
+    term_if[index].io = TERM1_IO;
+    term_if[index].done = TERM1_DONE;
+  }
   outportb(term_if[which].io+CFCR, CFCR_DLAB); // CFCR_DLAB is 0x80
   outportb(term_if[which].io+BAUDLO, LOBYTE(115200/9600)); // period of each 9600 bauds
   outportb(term_if[which].io+BAUDHI, HIBYTE(115200/9600));
@@ -96,11 +104,19 @@ void TermProc(void){
   str[2] = '\0';
 
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
+  if(my_pid % 2 == 0) device = TERM0;
+  else device = TERM1;
   
   while(1){
     // every 5 lines Write() to my device some special symbols (help viewing)
+    SetVideo(my_pid, 1);
+    Write(device, "--->>");
     // Write() 'str' to my device
+    SetVideo(my_pid+1, 1);
+    Write(device, str);
     // Write() a lengthier message (see demo) to my device
+    SetVideo(my_pid+1, 3);
+    Write(device, ": I would make a skeleton joke, but you wouldn't find it very humerus. Hehe, sike. Bow down, witches!");
     Sleep(3) // sleep for 3 seconds
   }
 }

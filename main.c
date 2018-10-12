@@ -49,6 +49,8 @@ void InitKernel(void) {             // init and set up kernel!
    car_sem = 0;
    video_p = HOME_POS;
    sys_ticks=0;
+   TermInit(0);
+   TermInit(1);
 }
 
 void Scheduler(void) {                         // choose a cur_pid to run

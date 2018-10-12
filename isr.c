@@ -145,5 +145,21 @@ void SemPostISR(void){
 }
 
 void TermISR(int index) {
+   // read 'event' by inportb(), via the terminal 'io' plus the offset 'IIR'
+   unsigned int event = inportb(term_if[index].io + IIR);
+   // if event read is IIR_TXRDY, call TermTxISR() with the array index
+   if(event == IIR_TXRDY) TermTxISR(index);
+   // if event read is IIR_RXRDY, just cons_printf() an asterisk on target PC
+   if(event == IIR_RXRDY) cons_printf("*");
+}
+
+void TermTXISR(int index){
+   // return if tx_wait_q in the terminal interface is empty
+   if (QisEmpty(&tx_wait_q)) return;
+   // if tx_p in the terminal interface points to null charater:
+   //     1-2-3. release the 1st process from tx_wait_q (the 3 steps)
    
+   // else
+   //     1. send this character to the terminal 'io' to display
+   //     2. advance tx_p so it points to the next character in the user string
 }
