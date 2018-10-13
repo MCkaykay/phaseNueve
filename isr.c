@@ -76,7 +76,17 @@ void WriteISR(void){
   char *str = (char *)pcb[cur_pid].TF_p->ecx;
   unsigned short col_pos;
   unsigned short rest;
-  int i;
+  int i, arr_index;
+  if(strlen(str) == 0) return;
+  if((device == TERM0) || (device == TERM1)){
+    if(device == TERM0) arr_index=0;
+    if(device == TERM1) arr_index=1;
+    outportb(term_if[arr_index].io, str[0]);
+    term_if[arr_index].tx_p = &str[1];
+    EnQ(cur_pid, &term_if[arr_index].tx_wait_q);
+    pcb[cur_pid].state = WAIT;
+    cur_pid=-1;
+  }
   if(device == STDOUT) {
     for(i=0; i<=strlen(str); i++){
       //if video_p is reaching END_POS then set back to HOME_POS
@@ -150,16 +160,25 @@ void TermISR(int index) {
    // if event read is IIR_TXRDY, call TermTxISR() with the array index
    if(event == IIR_TXRDY) TermTxISR(index);
    // if event read is IIR_RXRDY, just cons_printf() an asterisk on target PC
-   if(event == IIR_RXRDY) cons_printf("*");
+   if(event == IIR_RXRDY) cons_printf("*"); 
+   outportb(PIC_CONTROL, term_if[index].done);
 }
 
-void TermTXISR(int index){
+void TermTxISR(int index){
+   int pid;
    // return if tx_wait_q in the terminal interface is empty
-   if (QisEmpty(&tx_wait_q)) return;
+   if (QisEmpty(&term_if[index].tx_wait_q)) return;
+   
    // if tx_p in the terminal interface points to null charater:
    //     1-2-3. release the 1st process from tx_wait_q (the 3 steps)
-   
-   // else
-   //     1. send this character to the terminal 'io' to display
-   //     2. advance tx_p so it points to the next character in the user string
+   if (*term_if[index].tx_p != '\0'){
+     outportb(term_if[index].io, *term_if[index].tx_p);
+     term_if[index].tx_p++;
+     return;
+   }
+   else {
+     pid = DeQ(&term_if[index].tx_wait_q);
+     pcb[pid].state = READY;
+     cur_pid=-1;
+   }
 }

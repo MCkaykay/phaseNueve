@@ -24,6 +24,31 @@ q_t sem_q;                          // semaphore ID's are intially queued here
 int car_sem;                        // to hold a semaphore ID for testing
 term_if_t term_if[TERM_MAX];
 
+void TermInit(int index) {
+  int i;
+  Bzero((char *)&term_if[index], sizeof(term_if_t));// clear the terminal interfaced (that is being indexed)
+  // set the 'io' in the interface to either TERM0_IO or TERM1_IO
+  // set the 'done' to either TERM0_DONE or TERM1_DONE
+  if(index ==0){
+    term_if[index].io = TERM0_IO;
+    term_if[index].done = TERM0_DONE;
+  }
+  if(index ==1){
+    term_if[index].io = TERM1_IO;
+    term_if[index].done = TERM1_DONE;
+  }
+  outportb(term_if[index].io+CFCR, CFCR_DLAB); // CFCR_DLAB is 0x80
+  outportb(term_if[index].io+BAUDLO, LOBYTE(115200/9600)); // period of each 9600 bauds
+  outportb(term_if[index].io+BAUDHI, HIBYTE(115200/9600));
+  outportb(term_if[index].io+CFCR, CFCR_PEVEN|CFCR_PENAB|CFCR_7BITS);
+  outportb(term_if[index].io+IER, 0);
+  outportb(term_if[index].io+MCR, MCR_DTR|MCR_RTS|MCR_IENABLE);
+  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
+  outportb(term_if[index].io+IER, IER_ERXRDY|IER_ETXRDY); // enable TX & RX intr
+  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
+  inportb(term_if[index].io);                             // clear key cleared PROCOMM screen 
+}
+
 void InitKernel(void) {             // init and set up kernel!
    int i;
    struct i386_gate *IVT_p;         // IVT's DRAM location

@@ -70,34 +70,9 @@ void CarProc(void){
    }
 }
 
-void TermInit(int index) {
-  Bzero((char *)&term_if[index], sizeof(term_if_t));// clear the terminal interfaced (that is being indexed)
-  // set the 'io' in the interface to either TERM0_IO or TERM1_IO
-  // set the 'done' to either TERM0_DONE or TERM1_DONE
-  if(index ==0){
-    term_if[index].io = TERM0_IO;
-    term_if[index].done = TERM0_DONE;
-  }
-  if(index ==1){
-    term_if[index].io = TERM1_IO;
-    term_if[index].done = TERM1_DONE;
-  }
-  outportb(term_if[which].io+CFCR, CFCR_DLAB); // CFCR_DLAB is 0x80
-  outportb(term_if[which].io+BAUDLO, LOBYTE(115200/9600)); // period of each 9600 bauds
-  outportb(term_if[which].io+BAUDHI, HIBYTE(115200/9600));
-  outportb(term_if[which].io+CFCR, CFCR_PEVEN|CFCR_PENAB|CFCR_7BITS);
-  outportb(term_if[which].io+IER, 0);
-  outportb(term_if[which].io+MCR, MCR_DTR|MCR_RTS|MCR_IENABLE);
-  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
-  outportb(term_if[which].io+IER, IER_ERXRDY|IER_ETXRDY); // enable TX & RX intr
-  for(i=0; i<LOOP/2; i++) asm("inb $0x80");
-  inportb(term_if[which].io);                             // clear key cleared PROCOMM screen 
-}
-
 void TermProc(void){
   int my_pid, device;
   char str[3];
-
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
@@ -112,11 +87,11 @@ void TermProc(void){
     SetVideo(my_pid, 1);
     Write(device, "--->>");
     // Write() 'str' to my device
-    SetVideo(my_pid+1, 1);
+    SetVideo(my_pid+1, 7);
     Write(device, str);
     // Write() a lengthier message (see demo) to my device
-    SetVideo(my_pid+1, 3);
+    SetVideo(my_pid+1, 9);
     Write(device, ": I would make a skeleton joke, but you wouldn't find it very humerus. Hehe, sike. Bow down, witches!");
-    Sleep(3) // sleep for 3 seconds
+    Sleep(3); // sleep for 3 seconds
   }
 }
