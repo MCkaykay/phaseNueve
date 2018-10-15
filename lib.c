@@ -47,3 +47,11 @@ void EnQ(int to_add, q_t *p) {
    p->tail = (p->tail +1) % Q_SIZE;
 }
 
+int mystrlen(char *p){
+  int count =0;
+  while(*p != '\0'){
+    count++;
+    p++;
+  }
+  return count;
+}

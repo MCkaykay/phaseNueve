@@ -72,6 +72,7 @@ void CarProc(void){
 
 void TermProc(void){
   int my_pid, device;
+  int line = 1;
   char str[3];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
@@ -81,17 +82,14 @@ void TermProc(void){
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
-  
   while(1){
     // every 5 lines Write() to my device some special symbols (help viewing)
-    SetVideo(my_pid, 1);
-    Write(device, "--->>");
+    if(line % 5 == 0) Write(device, "--->>\n\r");
     // Write() 'str' to my device
-    SetVideo(my_pid+1, 7);
     Write(device, str);
     // Write() a lengthier message (see demo) to my device
-    SetVideo(my_pid+1, 9);
-    Write(device, ": I would make a skeleton joke, but you wouldn't find it very humerus. Hehe, sike. Bow down, witches!");
+    Write(device, ": I would make a skeleton joke, but you wouldn't find it very humerus.\n\r");
     Sleep(3); // sleep for 3 seconds
+    line++;
   }
 }

@@ -77,18 +77,19 @@ void WriteISR(void){
   unsigned short col_pos;
   unsigned short rest;
   int i, arr_index;
-  if(strlen(str) == 0) return;
+  if(*str == '\0') return;
   if((device == TERM0) || (device == TERM1)){
     if(device == TERM0) arr_index=0;
     if(device == TERM1) arr_index=1;
-    outportb(term_if[arr_index].io, str[0]);
-    term_if[arr_index].tx_p = &str[1];
+    outportb(term_if[arr_index].io, *str);
+    str++;
+    term_if[arr_index].tx_p = str;
     EnQ(cur_pid, &term_if[arr_index].tx_wait_q);
     pcb[cur_pid].state = WAIT;
     cur_pid=-1;
   }
   if(device == STDOUT) {
-    for(i=0; i<=strlen(str); i++){
+    for(i=0; i<=mystrlen(str); i++){
       //if video_p is reaching END_POS then set back to HOME_POS
       if (video_p >= END_POS) video_p = HOME_POS;
       //if video_p apears at start of line then earse the entrie line
@@ -168,17 +169,16 @@ void TermTxISR(int index){
    int pid;
    // return if tx_wait_q in the terminal interface is empty
    if (QisEmpty(&term_if[index].tx_wait_q)) return;
-   
    // if tx_p in the terminal interface points to null charater:
-   //     1-2-3. release the 1st process from tx_wait_q (the 3 steps)
-   if (*term_if[index].tx_p != '\0'){
+   // 1-2-3. release the 1st process from tx_wait_q (the 3 steps)
+   if (*term_if[index].tx_p == '\0'){
+     pid = DeQ(&term_if[index].tx_wait_q);
+     EnQ(pid, &ready_q);
+     pcb[pid].state = READY;
+   }
+   else{  
      outportb(term_if[index].io, *term_if[index].tx_p);
      term_if[index].tx_p++;
      return;
-   }
-   else {
-     pid = DeQ(&term_if[index].tx_wait_q);
-     pcb[pid].state = READY;
-     cur_pid=-1;
    }
 }
