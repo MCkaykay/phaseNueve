@@ -10,5 +10,6 @@ void Write(int, char *);
 int SemInit(int);
 void SemWait(int);
 void SemPost(int);
+void Read(int, char *);
 
 #endif

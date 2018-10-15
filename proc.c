@@ -72,8 +72,8 @@ void CarProc(void){
 
 void TermProc(void){
   int my_pid, device;
-  int line = 1;
   char str[3];
+  char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
@@ -83,13 +83,14 @@ void TermProc(void){
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
   while(1){
-    // every 5 lines Write() to my device some special symbols (help viewing)
-    if(line % 5 == 0) Write(device, "--->>\n\r");
     // Write() 'str' to my device
     Write(device, str);
-    // Write() a lengthier message (see demo) to my device
-    Write(device, ": I would make a skeleton joke, but you wouldn't find it very humerus.\n\r");
+    Write(device, ": enter > ");
+    Read(device, buff); // read whats entered from terminal KB
+    // show whats entered
+    Write(device, "\n\rentered: ");
+    Write(device, buff);
+    Write(device, "\n\r");
     Sleep(3); // sleep for 3 seconds
-    line++;
   }
 }

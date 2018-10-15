@@ -81,3 +81,14 @@ void SemPost(int sem_id){
        : "eax", "ebx"
     );
 }
+
+void Read(int device, char *buff){
+   asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        movl %2, %%ecx;
+        int $128"
+       :
+       : "g" (READ), "g" (device), "g" ((int)buff)
+       : "eax", "ebx", "ecx"
+   );
+}

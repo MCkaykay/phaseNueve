@@ -161,7 +161,7 @@ void TermISR(int index) {
    // if event read is IIR_TXRDY, call TermTxISR() with the array index
    if(event == IIR_TXRDY) TermTxISR(index);
    // if event read is IIR_RXRDY, just cons_printf() an asterisk on target PC
-   if(event == IIR_RXRDY) cons_printf("*"); 
+   if(event == IIR_RXRDY) TermRxISR(index); 
    outportb(PIC_CONTROL, term_if[index].done);
 }
 
@@ -180,5 +180,40 @@ void TermTxISR(int index){
      outportb(term_if[index].io, *term_if[index].tx_p);
      term_if[index].tx_p++;
      return;
+   }
+}
+
+void ReadISR(void){
+   int device, term_interface;
+   char *buff = (char *)pcb[cur_pid].TF_p->ecx;
+   device = pcb[cur_pid].TF_p->ebx;
+   // determine which terminal interface to use
+   if(device == TERM0) term_interface=0;
+   if(device == TERM1) term_interface=1;
+   // set the RX pointer of the interface to 'buff'
+   term_if[term_interface].rx_p = buff;
+   // "block" the current process to the RX wait queue of the interface
+   EnQ(cur_pid, &term_if[term_interface].rx_wait_q);
+   pcb[cur_pid].state = WAIT;
+   cur_pid = -1;
+}
+
+void TermRxISR(int interface_num) {
+   char ch;
+   int pid;
+   ch = inportb(term_if[interface_num].io);
+   if(ch != '\n' || ch != '\r'){
+     outportb(ch, term_if[interface_num].io);
+     if(QisEmpty(&term_if[interface_num].rx_wait_q)){
+       // using the RX pointer of the interface to append it to buff
+       term_if[interface_num].rx_p++;  // advance the RX pointer
+     }
+     return;
+   }
+   if(!QisEmpty(&term_if[interface_num].rx_wait_q)){
+     // delimit 'buff' with a null character
+     pid = DeQ(&term_if[interface_num].rx_wait_q);
+     EnQ(pid, &ready_q);
+     pcb[pid].state = READY;
    }
 }

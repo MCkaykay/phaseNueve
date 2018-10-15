@@ -39,4 +39,7 @@
 #define TERM0_DONE 0x63      // done signal to send to PIC
 #define TERM1_DONE 0x64      // done signal to send to PIC
 
+#define READ 3               // read terminal KB service #
+#define BUFF_SIZE 101        // size of buffer for terminal KB input
+
 #endif
