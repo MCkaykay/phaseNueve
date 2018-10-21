@@ -114,10 +114,12 @@ void SemInitISR(void){
    int sem_id, passes;
    sem_id = DeQ(&sem_q);
    if (sem_id == -1) {
+     pcb[cur_pid].TF_p->ecx = sem_id;
      cons_printf("Kernal Panic: no more semaphores\n");
      breakpoint();
    }
    passes = pcb[cur_pid].TF_p->ebx;
+   pcb[cur_pid].TF_p->ecx = sem_id;
    Bzero((char *)&sem[sem_id], sizeof(sem_t));
    sem[sem_id].passes = passes;
    p= HOME_POS + 21 * 80;
@@ -149,7 +151,7 @@ void SemPostISR(void){
    else{                                          // otherwise, move the 1st PID in the wait queue of the sem to the ready-to-run PID queue
      pid = DeQ(&sem[sem_id].wait_q);
      EnQ(pid, &ready_q);
-     pcb[cur_pid].state = READY;                  // update the state
+     pcb[pid].state = READY;                  // update the state
    }
    p = HOME_POS + 21 * 80;
    *p = sem[sem_id].passes + '0' + VGA_MASK;
@@ -202,16 +204,16 @@ void TermRxISR(int interface_num) {
    char ch;
    int pid;
    ch = inportb(term_if[interface_num].io);
-   if(ch != '\n' || ch != '\r'){
-     outportb(ch, term_if[interface_num].io);
-     if(QisEmpty(&term_if[interface_num].rx_wait_q)){
-       // using the RX pointer of the interface to append it to buff
+   if(!(ch == '\n' || ch == '\r')){
+     outportb(term_if[interface_num].io, ch);
+     if(!QisEmpty(&term_if[interface_num].rx_wait_q)){
+       *term_if[interface_num].rx_p = ch; // using the RX pointer of the interface to append it to buff
        term_if[interface_num].rx_p++;  // advance the RX pointer
      }
      return;
    }
    if(!QisEmpty(&term_if[interface_num].rx_wait_q)){
-     // delimit 'buff' with a null character
+     *term_if[interface_num].rx_p = '\0'; // delimit 'buff' with a null character
      pid = DeQ(&term_if[interface_num].rx_wait_q);
      EnQ(pid, &ready_q);
      pcb[pid].state = READY;

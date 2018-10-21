@@ -91,6 +91,5 @@ void TermProc(void){
     Write(device, "\n\rentered: ");
     Write(device, buff);
     Write(device, "\n\r");
-    Sleep(3); // sleep for 3 seconds
   }
 }
