@@ -42,4 +42,6 @@
 #define READ 3               // read terminal KB service #
 #define BUFF_SIZE 101        // size of buffer for terminal KB input
 
+#define SIGNAL 48            // signal service #
+#define SIGINT 2             // signal ctrl-C is 2
 #endif
