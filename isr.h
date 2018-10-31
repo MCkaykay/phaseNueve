@@ -18,5 +18,7 @@ void TermISR(int);
 void TermTxISR(int);
 void ReadISR(void);
 void TermRxISR(int);
+void WrapperISR(int, func_p_t);
+void SignalISR(void);
 
 #endif

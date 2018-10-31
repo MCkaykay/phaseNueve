@@ -70,6 +70,21 @@ void CarProc(void){
    }
 }
 
+void Ouch(void){
+  int device, pid;
+  pid = GetPid();
+  if(pid%2 == 0) device = TERM0;
+  else device = TERM1;
+  Write(device, "Ouch, don't touch that!\n\r");
+}
+
+void Wrapper(func_p_t handler_p){
+   asm("pushal");         // save registers
+   handler_p();           // call user's signal handler
+   asm("popal");          // restore registers
+   asm("movl %%ebp, %%esp; popl %%ebp; ret $4"::); // skip Ouch addr
+}
+
 void TermProc(void){
   int my_pid, device;
   char str[3];
@@ -82,7 +97,7 @@ void TermProc(void){
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
-  Signal();         // call syscall to register Ouch() as its handler
+  Signal(SIGINT, Ouch);         // call syscall to register Ouch() as its handler
   while(1){
     // Write() 'str' to my device
     Write(device, str);
@@ -95,16 +110,4 @@ void TermProc(void){
   }
 }
 
-void Ouch(int device){
-  int myDevice;
-  if(device == 0) myDevice = TERM0;
-  else myDevice = TERM1;
-  Write(myDevice, "Ouch, don't touch that!\n\r");
-}
 
-void Wrapper(func_p_t handler_p){
-   asm("pushal");         // save registers
-   handler_p();           // call user's signal handler
-   asm("popal");          // restore registers
-   asm("movl %%ebp, %%esp; popl %%ebp; ret $4"::); // skip Ouch addr
-}

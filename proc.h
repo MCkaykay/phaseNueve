@@ -7,8 +7,7 @@ void InitProc(void);
 void UserProc(void);
 void CarProc(void);
 void TermProc(void);
-void Ouch(int);
+void Ouch(void);
 void Wrapper(func_p_t handler_p);
 
 #endif
-

@@ -11,6 +11,6 @@ int SemInit(int);
 void SemWait(int);
 void SemPost(int);
 void Read(int, char *);
-void Signal(int sig_num, func_p_t *p);
+void Signal(int, func_p_t *);
 
 #endif

@@ -204,7 +204,7 @@ void TermRxISR(int interface_num) {
    char ch;
    int pid;
    ch = inportb(term_if[interface_num].io);
-   if(ch == SIGINT) {
+   if(ch == 3) {
       if(QisEmpty(&term_if[interface_num].rx_wait_q)){
          return;
       }
@@ -239,10 +239,16 @@ void SignalISR(void){
 }
 
 void WrapperISR(int pid, func_p_t handler_p){
-   int tmp;
+   int *p1, *p2;
+   TF_t tmp;
+   p1 = &pcb[pid].TF_p->cs;
+   p2 = &pcb[pid].TF_p->efl;
    tmp = *pcb[pid].TF_p; // copy process trapframe to a temporary trapframe (local)
    (int)pcb[pid].TF_p -= 8; // lower the trapframe location info (in PCB) by 8 bytes
    *pcb[pid].TF_p = tmp; // copy temporary trapframe to the new lowered location
-   // the vacated 8 bytes: put 'handler_p,' and 'eip' of the old trapframe there
-   // change 'eip' in the moved trapframe to Wrapper() address
+   *p1 = (int)handler_p;
+   *p2 = tmp.eip;
+   //&pcb[pid].TF_p -> cs = (int)handler_p; // the vacated 8 bytes: put 'handler_p,' and 'eip' of the old trapframe there
+   //&pcb[pid].TF_p-> efl = tmp.eip;
+   pcb[pid].TF_p->eip = (int)Wrapper; // change 'eip' in the moved trapframe to Wrapper() address
 }
