@@ -3,6 +3,8 @@
 #ifndef __SYSCALLS__
 #define __SYSCALLS__
 
+#include "types.h"
+
 void Sleep(int);
 int GetPid(void);
 void SetVideo(int, int);
