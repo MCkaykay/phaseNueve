@@ -204,7 +204,7 @@ void TermRxISR(int interface_num) {
    char ch;
    int pid;
    ch = inportb(term_if[interface_num].io);
-   if(ch == (char)3) {
+   if(ch == 3) {
       if(QisEmpty(&term_if[interface_num].rx_wait_q)){
          return;
       }
