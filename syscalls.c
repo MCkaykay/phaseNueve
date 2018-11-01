@@ -104,3 +104,27 @@ void Signal(int sig_num, func_p_t p){
        : "eax", "ebx", "ecx"
    );
 }
+
+int GetPpid(void){
+   int ppid;
+   asm("movl %1, %%eax;
+        int $128;
+        movl %%ebx, %0"
+       : "=g" (ppid)
+       : "g" (GETPPID)
+       : "eax", "ebx"
+    );
+   return ppid;
+}
+
+int Fork(void){
+   int pid;
+   asm("movl %1, %%eax;
+        int $128;
+        movl %%ebx, %0"
+       : "=g" (pid)
+       : "g" (FORK)
+       : "eax", "ebx"
+    );
+   return pid
+}

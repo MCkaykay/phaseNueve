@@ -44,4 +44,8 @@
 
 #define SIGNAL 48            // signal service #
 #define SIGINT 2             // signal ctrl-C is 2
+
+#define FORK 2
+#define GETPPID 64
+
 #endif

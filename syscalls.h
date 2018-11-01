@@ -14,5 +14,7 @@ void SemWait(int);
 void SemPost(int);
 void Read(int, char *);
 void Signal(int, func_p_t);
+int GetPpid(void);
+int Fork(void);
 
 #endif

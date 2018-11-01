@@ -250,3 +250,11 @@ void WrapperISR(int pid, func_p_t handler_p){
    *p2 = tmp.eip;
    pcb[pid].TF_p->eip = (int)Wrapper; // change 'eip' in the moved trapframe to Wrapper() address
 }
+
+void GetPpidISR(void){
+   pcb[cur_pid].TF_p->ebx = cur_pid;
+}
+
+void ForkISR(void){
+
+}
