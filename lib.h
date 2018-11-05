@@ -11,5 +11,7 @@ int QisEmpty(q_t *);
 int DeQ(q_t *);
 void EnQ(int, q_t *);
 int mystrlen(char *);
+int StrCmp(char *, char *);
+void MemCpy(char *, char *, int);
 
 #endif

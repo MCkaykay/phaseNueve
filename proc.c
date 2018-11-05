@@ -6,6 +6,7 @@
 #include "syscalls.h"
 #include "data.h"
 #include "types.h"
+#include "lib.h"
 
 void InitProc(void) {
    int i;
@@ -86,20 +87,44 @@ void Wrapper(func_p_t handler_p){
    asm("movl %%ebp, %%esp; popl %%ebp; ret $4"::); // skip Ouch addr
 }
 
+void ChildCode(void){
+   int my_pid, ppid, device;
+   char str[3];
+   my_pid = GetPid();         // get my PID
+   ppid = GetPpid();          // get parent PID
+   // select device from parent PID
+   if(ppid % 2 == 0) device = TERM0;
+   else device = TERM1;
+   // build a string based on my PID
+   str[0] = my_pid / 10 + '0';
+   str[1] = my_pid % 10 + '0';
+   str[2] = '\0';
+   while(1){                   // loop forever
+     Write(device, ": I am child PID: ");
+     Write(device, str);
+     Sleep(3);
+   }
+}
+
 void TermProc(void){
-  int my_pid, device;
-  char str[3];
+  int my_pid, device, childPID;
+  char str[3], forkStr[5];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
   str[2] = '\0';
-
+  forkStr[0] = 'f';
+  forkStr[1] = 'o';
+  forkStr[2] = 'r';
+  forkStr[3] = 'k';
+  forkStr[4] = '\0';
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
   Signal(SIGINT, Ouch);         // call syscall to register Ouch() as its handler
   while(1){
+    Sleep(1);
     // Write() 'str' to my device
     Write(device, str);
     Write(device, ": enter > ");
@@ -108,7 +133,10 @@ void TermProc(void){
     Write(device, "\n\rentered: ");
     Write(device, buff);
     Write(device, "\n\r");
+    if(StrCmp(buff, forkStr)){
+      childPID = Fork();
+      if(childPID == -1) Write(device, "OS failed to fork!");
+      if(childPID == 0) ChildCode();
+    }
   }
 }
-
-

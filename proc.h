@@ -11,5 +11,6 @@ void CarProc(void);
 void TermProc(void);
 void Ouch(void);
 void Wrapper(func_p_t handler_p);
+void ChildCode(void);
 
 #endif

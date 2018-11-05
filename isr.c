@@ -6,6 +6,7 @@
 #include "isr.h"
 #include "lib.h"
 #include "proc.h"
+#include "syscalls.h"
 
 // to create a process: alloc PID, PCB, and process stack
 // build trapframe, initialize PCB, record PID to ready_q
@@ -252,9 +253,24 @@ void WrapperISR(int pid, func_p_t handler_p){
 }
 
 void GetPpidISR(void){
-   pcb[cur_pid].TF_p->ebx = cur_pid;
+   pcb[cur_pid].TF_p->ebx = pcb[cur_pid].ppid;
 }
 
 void ForkISR(void){
+   int childPid;
+   childPid = DeQ(&avail_q);          // get (DeQ) a new child PID
+   pcb[cur_pid].TF_p->ebx = childPid; // put it into ebx of calling process trapframe
+   if(childPid == -1) return;         // if new child PID is -1 just return
+
+   pcb[childPid] = pcb[cur_pid];      // copy new child process' PCB from its parent's PCB
+   pcb[childPid].state = READY;       // set it's state to the correct one
+   EnQ(childPid, &ready_q);           // enqueue its PID to ready queue
+   pcb[childPid].ppid = GetPpid();    // set it's ppid to the parent PID
+
+   // copy it's parent's runtime stack 
+   // calc the location distance between the two stacks
+   // apply the distance to the child's TF_p
+   // then set ebx of its trapframe to 0 (child process gets 0 from Fork())
+   // apply the distance to esp, ebp, esi, edi in the child's trapframe
 
 }

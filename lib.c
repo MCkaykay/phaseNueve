@@ -55,3 +55,26 @@ int mystrlen(char *p){
   }
   return count;
 }
+
+int StrCmp(char *s1, char *s2){
+   // returns 1 if two strings are the same otherwise 0
+   int match = 1;
+   while((s1 != '\0') && (s2 != '\0')){
+     if(s1 != s2){
+       match = 0;
+     }
+     else{
+       s1++;
+       s2++;
+     }
+   }
+   return match;
+}
+
+void MemCpy(char *dst, char *src, int size){
+   // copies 'size' bytes from memory location 'src' to location 'dst'
+   int i=0;
+   for(i=0; i<size; i++){
+     dst[i]=src[i];
+   }
+}
