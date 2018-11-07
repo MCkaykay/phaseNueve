@@ -257,7 +257,8 @@ void GetPpidISR(void){
 }
 
 void ForkISR(void){
-   int childPid;
+   int childPid, dist;
+   int *p;
    childPid = DeQ(&avail_q);          // get (DeQ) a new child PID
    pcb[cur_pid].TF_p->ebx = childPid; // put it into ebx of calling process trapframe
    if(childPid == -1) return;         // if new child PID is -1 just return
@@ -267,10 +268,20 @@ void ForkISR(void){
    EnQ(childPid, &ready_q);           // enqueue its PID to ready queue
    pcb[childPid].ppid = GetPpid();    // set it's ppid to the parent PID
 
-   // copy it's parent's runtime stack 
-   // calc the location distance between the two stacks
-   // apply the distance to the child's TF_p
-   // then set ebx of its trapframe to 0 (child process gets 0 from Fork())
+   MemCpy(stack[childPid], stack[pcb[childPid].ppid], STACK_SIZE); // copy it's parent's runtime stack 
+   dist = &stack[childPid][0] - &stack[cur_pid][0]; // calc the location distance between the two stacks
+   pcb[childPid].TF_p += dist; // apply the distance to the child's TF_p
+   pcb[childPid].TF_p->ebx = 0; // then set ebx of its trapframe to 0 (child process gets 0 from Fork())
    // apply the distance to esp, ebp, esi, edi in the child's trapframe
+   pcb[childPid].TF_p->esp += dist;
+   pcb[childPid].TF_p->ebp += dist;
+   pcb[childPid].TF_p->esi += dist;
+   pcb[childPid].TF_p->edi += dist;
 
+   *p = pcb[childPid].TF_p->ebp;
+   while(*p != 0){
+     *p -= dist;
+     (int)p = *p;
+   }
 }
+

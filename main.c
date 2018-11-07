@@ -122,6 +122,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case TERM1: TermISR(1); break;
      case READ: ReadISR(); break;
      case SIGNAL: SignalISR(); break;
+     case GETPPID: GetPpidISR(); break;
+     case FORK: ForkISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed
