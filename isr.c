@@ -266,11 +266,11 @@ void ForkISR(void){
    pcb[childPid] = pcb[cur_pid];      // copy new child process' PCB from its parent's PCB
    pcb[childPid].state = READY;       // set it's state to the correct one
    EnQ(childPid, &ready_q);           // enqueue its PID to ready queue
-   pcb[childPid].ppid = GetPpid();    // set it's ppid to the parent PID
+   pcb[childPid].ppid = cur_pid;      // set it's ppid to the parent PID
 
-   MemCpy(stack[childPid], stack[pcb[childPid].ppid], STACK_SIZE); // copy it's parent's runtime stack 
-   dist = &stack[childPid][0] - &stack[cur_pid][0]; // calc the location distance between the two stacks
-   pcb[childPid].TF_p += dist; // apply the distance to the child's TF_p
+   MemCpy(stack[childPid], stack[cur_pid], STACK_SIZE); // copy it's parent's runtime stack 
+   dist = stack[childPid] - stack[cur_pid]; // calc the location distance between the two stacks
+   (int)pcb[childPid].TF_p += dist; // apply the distance to the child's TF_p
    pcb[childPid].TF_p->ebx = 0; // then set ebx of its trapframe to 0 (child process gets 0 from Fork())
    // apply the distance to esp, ebp, esi, edi in the child's trapframe
    pcb[childPid].TF_p->esp += dist;
@@ -278,7 +278,7 @@ void ForkISR(void){
    pcb[childPid].TF_p->esi += dist;
    pcb[childPid].TF_p->edi += dist;
 
-   *p = pcb[childPid].TF_p->ebp;
+   p = (int *)pcb[childPid].TF_p->ebp;
    while(*p != 0){
      *p -= dist;
      (int)p = *p;

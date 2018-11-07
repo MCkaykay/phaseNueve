@@ -59,8 +59,8 @@ int mystrlen(char *p){
 int StrCmp(char *s1, char *s2){
    // returns 1 if two strings are the same otherwise 0
    int match = 1;
-   while((s1 != '\0') && (s2 != '\0')){
-     if(s1 != s2){
+   while((*s1 != '\0') && (*s2 != '\0')){
+     if(*s1 != *s2){
        match = 0;
      }
      else{

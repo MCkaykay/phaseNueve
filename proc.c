@@ -102,22 +102,19 @@ void ChildCode(void){
    while(1){                   // loop forever
      Write(device, "I am child PID ");
      Write(device, str);
+     Write(device, "\n\r");
      Sleep(3);
    }
 }
 
 void TermProc(void){
   int my_pid, device, childPID;
-  char str[3], forkStr[4];
+  char str[3];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
   str[2] = '\0';
-  forkStr[0] ='f';
-  forkStr[1] ='o';
-  forkStr[2] ='r';
-  forkStr[3] ='k';
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
@@ -132,7 +129,7 @@ void TermProc(void){
     Write(device, "\n\rentered: ");
     Write(device, buff);
     Write(device, "\n\r");
-    if(StrCmp(buff, forkStr)){
+    if(StrCmp(buff, "fork")){
       childPID = Fork();
       if(childPID == -1) Write(device, "OS failed to fork!");
       if(childPID == 0) ChildCode();
