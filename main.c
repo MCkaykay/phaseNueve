@@ -23,6 +23,7 @@ sem_t sem[SEM_MAX];                 // kernel has these semaphores
 q_t sem_q;                          // semaphore ID's are intially queued here
 int car_sem;                        // to hold a semaphore ID for testing
 term_if_t term_if[TERM_MAX];
+q_t wait_q;                         // to enqueue parents calling Wait and got blocked
 
 void TermInit(int index) {
   int i;
@@ -62,6 +63,7 @@ void InitKernel(void) {             // init and set up kernel!
 
    Bzero((char *)&avail_q,sizeof(q_t)); // clear 2 queues
    Bzero((char *)&ready_q,sizeof(q_t));
+   Bzero((char *)&wait_q,sizeof(q_t));  // initialize the queue empty
    for(i=0; i<= PROC_MAX-1; i++){       // add all avail PID's to the queue
      EnQ(i, &avail_q);
      pcb[i].state=AVAIL;
@@ -124,6 +126,8 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case SIGNAL: SignalISR(); break;
      case GETPPID: GetPpidISR(); break;
      case FORK: ForkISR(); break;
+     case EXIT: ExitISR(); break;
+     case WAITCALL: WaitISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed

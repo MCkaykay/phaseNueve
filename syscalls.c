@@ -128,3 +128,26 @@ int Fork(void){
     );
    return pid;
 }
+
+void Exit(int ec){
+   asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        int $128"
+       :
+       : "g" (EXIT), "g" (ec) 
+       : "eax", "ebx"
+   );
+}
+
+int Wait(int *ec_p){
+   int child_pid;
+   asm("movl %1, %%eax;
+        movl %2, %%ebx;
+        int $128;
+        movl %%ecx, %0"
+       : "=g" (child_pid)
+       : "g" (WAITCALL), "g" (ec_p)
+       : "eax", "ebx", "ecx"
+    );
+    return child_pid;
+}

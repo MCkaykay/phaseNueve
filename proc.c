@@ -99,12 +99,11 @@ void ChildCode(void){
    str[0] = my_pid / 10 + '0';
    str[1] = my_pid % 10 + '0';
    str[2] = '\0';
-   while(1){                   // loop forever
-     Write(device, "I am child PID ");
-     Write(device, str);
-     Write(device, "\n\r");
-     Sleep(3);
-   }
+   Write(device, "I am child PID ");
+   Write(device, str);
+   Write(device, "\n\r");
+   Sleep(my_pid);
+   Exit(my_pid * 5);          // exiting with a special exit number for parent to get
 }
 
 void TermProc(void){

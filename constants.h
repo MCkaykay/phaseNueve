@@ -48,4 +48,8 @@
 #define FORK 2
 #define GETPPID 64
 
+#define WAITCALL 7           // syscall/service ID
+#define EXIT 1               // syscall/service ID
+#define SIGCHLD 17           // new signal name for event of child exiting
+
 #endif

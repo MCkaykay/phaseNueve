@@ -16,5 +16,7 @@ void Read(int, char *);
 void Signal(int, func_p_t);
 int GetPpid(void);
 int Fork(void);
+void Exit(int);
+int Wait(int *);
 
 #endif

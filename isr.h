@@ -22,5 +22,7 @@ void WrapperISR(int, func_p_t);
 void SignalISR(void);
 void GetPpidISR(void);
 void ForkISR(void);
+void ExitISR(void);
+void WaitISR(void);
 
 #endif
