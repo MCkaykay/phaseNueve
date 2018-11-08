@@ -108,6 +108,7 @@ void ChildCode(void){
 
 void TermProc(void){
   int my_pid, device, childPID;
+  int fg, cpid, ec;
   char str[3];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
@@ -119,19 +120,44 @@ void TermProc(void){
   else device = TERM1;
   Signal(SIGINT, Ouch);         // call syscall to register Ouch() as its handler
   while(1){
-    Sleep(1);
-    // Write() 'str' to my device
-    Write(device, str);
+    Sleep(2);
+    Write(device, str);         // Write() 'str' to my device 
     Write(device, ": enter > ");
     Read(device, buff); // read whats entered from terminal KB
-    // show whats entered
     Write(device, "\n\rentered: ");
     Write(device, buff);
     Write(device, "\n\r");
     if(StrCmp(buff, "fork")){
       childPID = Fork();
+      fg = 1;
       if(childPID == -1) Write(device, "OS failed to fork!");
       if(childPID == 0) ChildCode();
     }
+    else if(StrCmp(buff, "fork&")){
+      fg = 0;
+    }
+    else continue;
   }
 }
+
+void ChldHandler(void){
+   int pid, cpid;
+   char str[3];
+   pid = GetPid();
+   cpid = Wait();
+   str[0] = pid / 10 + '0';
+   str[1] = pid % 10 + '0';
+   str[2] = '\0';
+   if(pid % 2 == 0) device = TERM0;
+   else device = TERM1;
+   // issue several Write() calls to print info from Wait() 
+   Write(device, "my_pid ");
+   Write(device, str);
+   Write(device, ", cpid ");
+   Write(device, cpid);
+   Write(device, ", ec ");
+   // Write(device, ec);
+   Write(device, "\r\n");
+   Signal(SIGCHLD, Exit); // issue Signal() call to cancel ChldHandler
+}
+
