@@ -291,15 +291,16 @@ void ExitISR(void){
    // get ppid
    
    // call InQ() to check if my parent is in the new wait_q
+   // InQ(ppid, &wait_q);
    // if not:
-   // 1. alter child's state to ?
+   // 1. alter child's state to ZOMBIE
    // 2. reset cur_pid to
    // 3. if my parent has requested a SIGCHLD handler: call WrapperISR() to alter parent's runtime direction
    // return 
    
    // yes: call DelQ() to delete parent from wait_q
-   // instead, enqueue it to ? queue
-   // alter its state to ?
+   // instead, enqueue it to ready queue
+   // alter its state to ready
    // give parent 1. PID of child exited 2. child's exit code
    // reclaim child's PID: 1. EnQ its PID to ? queue 2. alter its state to ? 3. reset cur_pid to ?
 }
@@ -309,13 +310,13 @@ void WaitISR(void){
    // loop through each PCB: if the state is ZOMBIE and the ppid is cur_pid: break loop
    // if loop index is over PCB array index (not found):
    //   EnQ(cur_pid, &wait_q); // 1. queue cur_pid to wait_q
-   //   pcb[cur_pid].state=ZOMBIE; // 2. change cur_pid state
+   //   pcb[cur_pid].state=WAIT; // 2. change cur_pid state
    //   cur_pid = -1; // 3. reset cur_pid
    //   return;
    // fetch for cur_pid:
    //   1. its exit code(use ec_p, set it by what syscall provides)
    //   2. PID of child exited (pass it via in TF for syscall to fetch)
    // reclaim child's PID:
-   //   EnQ(cpid, &ready_q) // 1. enqueue its PID to ? queue
-   //   pcb[cpid].state = READY; // 2. alter its state to ?
+   //   EnQ(cpid, &avail_q) // 1. enqueue its PID to ? queue
+   //   pcb[cpid].state = AVAIL; // 2. alter its state to ?
 }
