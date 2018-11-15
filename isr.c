@@ -287,36 +287,50 @@ void ForkISR(void){
 
 void ExitISR(void){
    int ppid, ec, *ec_p;
-   // get ec
-   // get ppid
+   ec = pcb[cur_pid].TF_p->ebx;     // get ec
+   ppid = pcb[cur_pid].ppid;         // get ppid
    
    // call InQ() to check if my parent is in the new wait_q
-   // InQ(ppid, &wait_q);
-   // if not:
-   // 1. alter child's state to ZOMBIE
-   // 2. reset cur_pid to
-   // 3. if my parent has requested a SIGCHLD handler: call WrapperISR() to alter parent's runtime direction
-   // return 
-   
-   // yes: call DelQ() to delete parent from wait_q
-   // instead, enqueue it to ready queue
-   // alter its state to ready
+   if(!(InQ(ppid, &wait_q))) {
+      pcb[cur_pid].state = ZOMBIE;  // 1. alter child's state to ZOMBIE
+      cur_pid = -1;                 // 2. reset cur_pid to
+      // 3. if my parent has requested a SIGCHLD handler: call WrapperISR() to alter parent's runtime direction
+      if((int)pcb[ppid].sigint_handler_p == SIGCHLD) WrapperISR(ppid, pcb[ppid].sigint_handler_p);
+      return; 
+   }
+   else{
+      
+      DeQ(&wait_q);                   // yes: call DelQ() to delete parent from wait_q
+      EnQ(ppid, &ready_q);            // instead, enqueue it to ready queue
+      pcb[ppid].state = READY;        // alter its state to ready
+   }
    // give parent 1. PID of child exited 2. child's exit code
+   pcb[ppid].TF_p->ecx = cur_pid;
+   pcb[ppid].TF_p->ebx = ec;
    // reclaim child's PID: 1. EnQ its PID to ? queue 2. alter its state to ? 3. reset cur_pid to ?
+    EnQ(cur_pid, &avail_q);
+    pcb[cur_pid].state = AVAIL;
+    cur_pid = -1;
 }
 
 void WaitISR(void){
-   int cpid, *ec_p;
+   int cpid, *ec_p, i;
    // loop through each PCB: if the state is ZOMBIE and the ppid is cur_pid: break loop
+   for(i=0; i< PROC_MAX; i++){
+      if(pcb[i].state == ZOMBIE && pcb[i].ppid == cur_pid) break;
+   }
    // if loop index is over PCB array index (not found):
-   //   EnQ(cur_pid, &wait_q); // 1. queue cur_pid to wait_q
-   //   pcb[cur_pid].state=WAIT; // 2. change cur_pid state
-   //   cur_pid = -1; // 3. reset cur_pid
-   //   return;
+   if(i == PROC_MAX){
+      EnQ(cur_pid, &wait_q);     // 1. queue cur_pid to wait_q
+      pcb[cur_pid].state=WAIT;   // 2. change cur_pid state
+      cur_pid = -1;              // 3. reset cur_pid
+      return;
+   }
+   pcb[cur_pid].TF_p->ecx = i;
    // fetch for cur_pid:
-   //   1. its exit code(use ec_p, set it by what syscall provides)
-   //   2. PID of child exited (pass it via in TF for syscall to fetch)
+   ec_p = (int *)pcb[cur_pid].TF_p->ebx;  // 1. its exit code(use ec_p, set it by what syscall provides)
+   cpid = pcb[i].TF_p->ecx;               // 2. PID of child exited (pass it via in TF for syscall to fetch)
    // reclaim child's PID:
-   //   EnQ(cpid, &avail_q) // 1. enqueue its PID to ? queue
-   //   pcb[cpid].state = AVAIL; // 2. alter its state to ?
+   EnQ(cpid, &avail_q);     // 1. enqueue its PID to ? queue
+   pcb[cpid].state = AVAIL; // 2. alter its state to ?
 }

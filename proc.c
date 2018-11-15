@@ -109,12 +109,15 @@ void ChildCode(void){
 void TermProc(void){
   int my_pid, device, childPID;
   int fg, cpid, ec;
-  char str[3];
+  char str[3], cstr[3];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
   str[2] = '\0';
+  cstr[0] = cpid / 10 + '0';
+  cstr[1] = cpid % 10 + '0';
+  cstr[2] = '\0';
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
@@ -130,21 +133,35 @@ void TermProc(void){
     if(StrCmp(buff, "fork")){
       childPID = Fork();
       fg = 1;
-      if(childPID == -1) Write(device, "OS failed to fork!");
-      if(childPID == 0) ChildCode();
     }
     else if(StrCmp(buff, "fork&")){
       fg = 0;
     }
     else continue;
+    
+    switch(childPID){
+      case -1: Write(device, "OS failed to fork!"); break;
+      case 0: ChildCode(); break;
+      default: Sleep(my_pid * 2);
+               if(fg==1){
+                 Wait((int *)ec);
+                 Write(device, "my_pid ");
+                 Write(device, str);
+                 Write(device, ", cpid ");
+                 Write(device, cstr);
+                 Write(device, ", ec ");
+                 // Write(device, ec);
+                 Write(device, "\r\n");
+               }
+    }
   }
 }
 
 void ChldHandler(void){
-   int pid, cpid;
+   int pid, cpid, device, ec;
    char str[3];
    pid = GetPid();
-   cpid = Wait();
+   cpid = Wait(ec);
    str[0] = pid / 10 + '0';
    str[1] = pid % 10 + '0';
    str[2] = '\0';
