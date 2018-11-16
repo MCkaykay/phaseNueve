@@ -295,7 +295,7 @@ void ExitISR(void){
       pcb[cur_pid].state = ZOMBIE;  // 1. alter child's state to ZOMBIE
       cur_pid = -1;                 // 2. reset cur_pid to
       // 3. if my parent has requested a SIGCHLD handler: call WrapperISR() to alter parent's runtime direction
-      if((int)pcb[ppid].sigint_handler_p == SIGCHLD) WrapperISR(ppid, pcb[ppid].sigint_handler_p);
+      if((int)pcb[ppid].sigint_handler_p == SIGCHLD) WrapperISR(ppid, pcb[ppid].sigchld_handler_p);
       return; 
    }
    else{

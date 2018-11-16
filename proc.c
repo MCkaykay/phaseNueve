@@ -109,7 +109,7 @@ void ChildCode(void){
 void TermProc(void){
   int my_pid, device, childPID;
   int fg, cpid, ec;
-  char str[3], cstr[3];
+  char str[3], cstr[3], estr[3];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
@@ -145,12 +145,15 @@ void TermProc(void){
       default: Sleep(my_pid * 2);
                if(fg==1){
                  Wait((int *)ec);
+                 estr[0] = ec/10 + '0';
+                 estr[1] = ec%10 + '0';
+                 estr[2] = '\0';
                  Write(device, "my_pid ");
                  Write(device, str);
                  Write(device, ", cpid ");
                  Write(device, cstr);
                  Write(device, ", ec ");
-                 // Write(device, ec);
+                 Write(device, estr);
                  Write(device, "\r\n");
                }
     }
@@ -158,20 +161,23 @@ void TermProc(void){
 }
 
 void ChldHandler(void){
-   int pid, cpid, device, ec;
-   char str[3];
+   int pid, cpid, device, *ec;
+   char str[3],cstr[3];
    pid = GetPid();
    cpid = Wait(ec);
    str[0] = pid / 10 + '0';
    str[1] = pid % 10 + '0';
    str[2] = '\0';
+   cstr[0] = cpid / 10 + '0';
+   cstr[1] = cpid % 10 + '0';
+   cstr[2] = '\0';
    if(pid % 2 == 0) device = TERM0;
    else device = TERM1;
    // issue several Write() calls to print info from Wait() 
    Write(device, "my_pid ");
    Write(device, str);
    Write(device, ", cpid ");
-   Write(device, cpid);
+   Write(device, cstr);
    Write(device, ", ec ");
    // Write(device, ec);
    Write(device, "\r\n");
