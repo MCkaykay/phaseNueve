@@ -79,4 +79,12 @@ void MemCpy(char *dst, char *src, int size){
    }
 }
 
+int InQ(int element, q_t *q){
+   if(QisEmpty(q)) return 0;
+   
+}
 
+void DelQ(int element, q_t *q){
+   if(QisEmpty(q)) return;
+
+}

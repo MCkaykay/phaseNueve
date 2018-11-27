@@ -13,5 +13,7 @@ void EnQ(int, q_t *);
 int mystrlen(char *);
 int StrCmp(char *, char *);
 void MemCpy(char *, char *, int);
+int InQ(int, q_t *);
+void DelQ(int, q_t *);
 
 #endif
