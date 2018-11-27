@@ -146,7 +146,7 @@ int Wait(int *ec_p){
         int $128;
         movl %%ecx, %0"
        : "=g" (child_pid)
-       : "g" (WAITCALL), "g" (ec_p)
+       : "g" (WAITCALL), "g" ((int)ec_p)
        : "eax", "ebx", "ecx"
     );
     return child_pid;

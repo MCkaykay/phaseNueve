@@ -106,6 +106,30 @@ void ChildCode(void){
    Exit(my_pid * 5);          // exiting with a special exit number for parent to get
 }
 
+void ChldHandler(void){
+   int pid, cpid, device, ec;
+   char str[3],cstr[3];
+   pid = GetPid();
+   cpid = Wait(&ec);
+   str[0] = pid / 10 + '0';
+   str[1] = pid % 10 + '0';
+   str[2] = '\0';
+   cstr[0] = cpid / 10 + '0';
+   cstr[1] = cpid % 10 + '0';
+   cstr[2] = '\0';
+   if(pid % 2 == 0) device = TERM0;
+   else device = TERM1;
+   // issue several Write() calls to print info from Wait() 
+   Write(device, "my_pid ");
+   Write(device, str);
+   Write(device, ", cpid ");
+   Write(device, cstr);
+   Write(device, ", ec ");
+   // Write(device, ec);
+   Write(device, "\r\n");
+   Signal(SIGCHLD, (func_p_t)0); // issue Signal() call to cancel ChldHandler
+}
+
 void TermProc(void){
   int my_pid, device, childPID;
   int fg, cpid, ec;
@@ -123,64 +147,36 @@ void TermProc(void){
   else device = TERM1;
   Signal(SIGINT, Ouch);         // call syscall to register Ouch() as its handler
   while(1){
-    Sleep(2);
     Write(device, str);         // Write() 'str' to my device 
     Write(device, ": enter > ");
     Read(device, buff); // read whats entered from terminal KB
     Write(device, "\n\rentered: ");
     Write(device, buff);
     Write(device, "\n\r");
-    if(StrCmp(buff, "fork")){
-      childPID = Fork();
-      fg = 1;
-    }
-    else if(StrCmp(buff, "fork&")){
-      fg = 0;
-    }
+    if(StrCmp(buff, "fork")) fg = 1;
+    else if(StrCmp(buff, "fork&")) fg = 0;
     else continue;
     
-    switch(childPID){
+    if(!fg) Signal(SIGCHLD, ChldHandler);     // child runs in the background
+
+    switch(Fork()){
       case -1: Write(device, "OS failed to fork!"); break;
       case 0: ChildCode(); break;
-      default: Sleep(my_pid * 2);
-               if(fg==1){
-                 Wait((int *)ec);
-                 estr[0] = ec/10 + '0';
-                 estr[1] = ec%10 + '0';
-                 estr[2] = '\0';
-                 Write(device, "my_pid ");
-                 Write(device, str);
-                 Write(device, ", cpid ");
-                 Write(device, cstr);
-                 Write(device, ", ec ");
-                 Write(device, estr);
-                 Write(device, "\r\n");
-               }
+      default: 
+        Sleep(my_pid * 2);
+        if(fg){
+           childPID = Wait(&ec);
+           estr[0] = ec/10 + '0';
+           estr[1] = ec%10 + '0';
+           estr[2] = '\0';
+           Write(device, "my_pid ");
+           Write(device, str);
+           Write(device, ", cpid ");
+           Write(device, cstr);
+           Write(device, ", ec ");
+           Write(device, estr);
+           Write(device, "\n\r");
+       }
     }
   }
 }
-
-void ChldHandler(void){
-   int pid, cpid, device, *ec;
-   char str[3],cstr[3];
-   pid = GetPid();
-   cpid = Wait(ec);
-   str[0] = pid / 10 + '0';
-   str[1] = pid % 10 + '0';
-   str[2] = '\0';
-   cstr[0] = cpid / 10 + '0';
-   cstr[1] = cpid % 10 + '0';
-   cstr[2] = '\0';
-   if(pid % 2 == 0) device = TERM0;
-   else device = TERM1;
-   // issue several Write() calls to print info from Wait() 
-   Write(device, "my_pid ");
-   Write(device, str);
-   Write(device, ", cpid ");
-   Write(device, cstr);
-   Write(device, ", ec ");
-   // Write(device, ec);
-   Write(device, "\r\n");
-   Signal(SIGCHLD, Exit); // issue Signal() call to cancel ChldHandler
-}
-
