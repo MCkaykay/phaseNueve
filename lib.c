@@ -68,7 +68,8 @@ int StrCmp(char *s1, char *s2){
        s2++;
      }
    }
-   return match;
+   if(match == 0) return 0;
+   else return 1;
 }
 
 void MemCpy(char *dst, char *src, int size){
@@ -79,12 +80,21 @@ void MemCpy(char *dst, char *src, int size){
    }
 }
 
-int InQ(int element, q_t *q){
-   if(QisEmpty(q)) return 0;
-   
+int InQ(int pid, q_t *p){
+   int i;
+   for (i=0; i < p->size; i++){
+     if(pid == p->q[(p->head + i) % Q_SIZE]) return 1;
+   }
+   return 0;
 }
 
-void DelQ(int element, q_t *q){
-   if(QisEmpty(q)) return;
-
+void DelQ(int pid, q_t *p){
+   int i;
+   q_t tmp_q;
+   Bzero((char *)&tmp_q, sizeof(q_t));
+   for(i=0; i < p->size; i++){
+     if(pid == p->q[(p->head + i) % Q_SIZE]) continue;
+     EnQ(DeQ(p), &tmp_q);
+   }
+   *p = tmp_q;
 }

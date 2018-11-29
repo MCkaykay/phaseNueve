@@ -205,7 +205,7 @@ void TermRxISR(int interface_num) {
    char ch;
    int pid;
    ch = inportb(term_if[interface_num].io);
-   if(ch == 3) {
+   if(ch == (char)3) {
       if(QisEmpty(&term_if[interface_num].rx_wait_q)){
          return;
       }
@@ -280,7 +280,7 @@ void ForkISR(void){
 
    p = (int *)pcb[childPid].TF_p->ebp;
    while(*p != 0){
-     *p -= dist;
+     *p += dist;
      (int)p = *p;
    }
 }

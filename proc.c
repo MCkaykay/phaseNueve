@@ -125,23 +125,22 @@ void ChldHandler(void){
    Write(device, ", cpid ");
    Write(device, cstr);
    Write(device, ", ec ");
-   // Write(device, ec);
+   str[0] = ec / 10 + '0';
+   str[1] = ec % 10 + '0';
+   str[2] = '\0';
+   Write(device, str);
    Write(device, "\r\n");
    Signal(SIGCHLD, (func_p_t)0); // issue Signal() call to cancel ChldHandler
 }
 
 void TermProc(void){
-  int my_pid, device, childPID;
-  int fg, cpid, ec;
+  int my_pid, device, fg, cpid, ec;
   char str[3], cstr[3], estr[3];
   char buff[BUFF_SIZE];
   my_pid = GetPid();
   str[0] = my_pid / 10 + '0';
   str[1] = my_pid % 10 + '0';
   str[2] = '\0';
-  cstr[0] = cpid / 10 + '0';
-  cstr[1] = cpid % 10 + '0';
-  cstr[2] = '\0';
   // determine what my 'device' should be (even PID TERM0, odd TERM1)
   if(my_pid % 2 == 0) device = TERM0;
   else device = TERM1;
@@ -165,7 +164,10 @@ void TermProc(void){
       default: 
         Sleep(my_pid * 2);
         if(fg){
-           childPID = Wait(&ec);
+           cpid = Wait(&ec);
+           cstr[0] = cpid / 10 + '0';
+           cstr[1] = cpid % 10 + '0';
+           cstr[2] = '\0';
            estr[0] = ec/10 + '0';
            estr[1] = ec%10 + '0';
            estr[2] = '\0';
