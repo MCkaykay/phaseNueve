@@ -140,14 +140,14 @@ void Exit(int ec){
 }
 
 int Wait(int *ec_p){
-   int child_pid;
+   int cpid;
    asm("movl %1, %%eax;
         movl %2, %%ebx;
         int $128;
         movl %%ecx, %0"
-       : "=g" (child_pid)
+       : "=g" (cpid)
        : "g" (WAITCALL), "g" ((int)ec_p)
        : "eax", "ebx", "ecx"
     );
-    return child_pid;
+    return cpid;
 }
