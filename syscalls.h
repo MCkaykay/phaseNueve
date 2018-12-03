@@ -18,5 +18,6 @@ int GetPpid(void);
 int Fork(void);
 void Exit(int);
 int Wait(int *);
+int Exec(func_p_t2, int);
 
 #endif

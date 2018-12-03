@@ -6,6 +6,7 @@
 #include "constants.h"
 
 typedef void (*func_p_t)(void); // void-return function pointer type
+typedef void (*func_p_t2)(void);
 
 typedef enum {AVAIL, READY, RUN, SLEEPY, WAIT, ZOMBIE} state_t;
 
@@ -43,5 +44,10 @@ typedef struct {
   char *rx_p;                // point to inside the buffer
   q_t rx_wait_q;             // for PID waiting for term KB input
 } term_if_t;
+
+typedef struct {
+  int owner;
+  int mem_addr;
+} page_t;
 
 #endif

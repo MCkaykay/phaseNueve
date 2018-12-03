@@ -98,3 +98,18 @@ void DelQ(int pid, q_t *p){
    }
    *p = tmp_q;
 }
+
+void ReclaimPages(int pid){
+   // search thru the memory info array for those
+   // currently owned by 'pid' and change the info
+   // to 'not owned'
+}
+
+int Alloc(int pid, int how_many, int page_index[]){
+   // search thru the memory info array for 'how_many'
+   // pages currently now owned, and set them to be
+   // owned by 'pid' and collect their pages indices
+   // into page_index[]
+   // return 0 if sucessfully got that many asked
+   // otherwise, leave/recover owner info intact and return -1
+}

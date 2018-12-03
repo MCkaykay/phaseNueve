@@ -151,3 +151,14 @@ int Wait(int *ec_p){
     );
     return cpid;
 }
+
+int Exec(func_p_t2 code_p, int device){
+   asm("movl %0, %%eax;
+        movl %1, %%ebx;
+        movl %2, %%ecx;
+        int $128"
+       :
+       : "g" (EXEC), "g" ((int)code_p), "g" (device)
+       : "eax", "ebx", "ecx"
+   );
+}

@@ -309,6 +309,7 @@ void ExitISR(void){
    EnQ(cur_pid, &avail_q);
    pcb[cur_pid].state = AVAIL;
    cur_pid = -1;
+   ReclaimPages(cur_pid);
 }
 
 void WaitISR(void){
@@ -330,5 +331,15 @@ void WaitISR(void){
    *ec_p = pcb[cpid].TF_p->ebx;               // 2. PID of child exited (pass it via in TF for syscall to fetch)
    // reclaim child's PID:
    EnQ(cpid, &avail_q);     // 1. enqueue its PID to ? queue
-   pcb[cpid].state = AVAIL; // 2. alter its state to ?
+   pcb[cpid].state = AVAIL; // 2. alter its state to ?i
+   ReclaimPages(cpid);
+}
+
+void ExecISR(void) {
+   int code_addr = pcb[cur_pid].TF_p->ebx;
+   int device = pcb[cur_pid].TF_p->ecx;
+   // edx of caller's TF is what Exec() will get (and return to proc.c)
+   // call AllocPages() to allocate 2 DRAM pages
+   // if it returns -1: set edx of caller's TF to -1 and return
+   // there is a lot more on coding hints
 }

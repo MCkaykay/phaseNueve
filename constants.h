@@ -52,4 +52,9 @@
 #define EXIT 1               // syscall/service ID
 #define SIGCHLD 17           // new signal name for event of child exiting
 
+#define EXEC 11              // new servie #
+#define BASE_ADDR 0xe00000   // MyOS.dli ends at byte 14M-1, 0xdfffff
+#define PAGE_SIZE 0x1000     // each DRAM page is 4KB in size, 0x1000
+#define PAGE_MAX 100         // there are 100 DRAM pages to allocate
+
 #endif
