@@ -168,6 +168,7 @@ void TermProc(void){
       default: 
         Sleep(my_pid * 2);
         if(fg){
+           cpid = Wait(&ec);
            cstr[0] = cpid / 10 + '0';
            cstr[1] = cpid % 10 + '0';
            cstr[2] = '\0';
