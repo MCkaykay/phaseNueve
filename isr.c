@@ -336,10 +336,24 @@ void WaitISR(void){
 }
 
 void ExecISR(void) {
-   int code_addr = pcb[cur_pid].TF_p->ebx;
-   int device = pcb[cur_pid].TF_p->ecx;
-   // edx of caller's TF is what Exec() will get (and return to proc.c)
-   // call AllocPages() to allocate 2 DRAM pages
-   // if it returns -1: set edx of caller's TF to -1 and return
-   // there is a lot more on coding hints
+   int code_addr, device, page_index[2], status, *p;
+   code_addr = pcb[cur_pid].TF_p->ebx;
+   device = pcb[cur_pid].TF_p->ecx;
+   status = Alloc(cur_pid, 2, page_index);
+   if(status == -1){
+     pcb[cur_pid].TF_p->edx = -1;
+     return;
+   }
+   MemCpy((char *)pages[page_index[0]].addr, (char *)code_addr, PAGE_SIZE);
+   Bzero((char *)pages[page_index[0]].addr, PAGE_SIZE);
+   p = (int *)(pages[page_index[1]].addr + PAGE_SIZE);
+   p--;
+   *p = device;
+   p--;
+   *p=0;
+   pcb[cur_pid].TF_p = (TF_t *)p;
+   pcb[cur_pid].TF_p--;
+   pcb[cur_pid].TF_p->efl = EF_DEFAULT_VALUE | EF_INTR;
+   pcb[cur_pid].TF_p->cs = get_cs();
+   pcb[cur_pid].TF_p->eip = pages[page_index[0]].addr;
 }

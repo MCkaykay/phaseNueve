@@ -6,7 +6,7 @@
 #include "constants.h"
 
 typedef void (*func_p_t)(void); // void-return function pointer type
-typedef void (*func_p_t2)(void);
+typedef void (*func_p_t2)(int);
 
 typedef enum {AVAIL, READY, RUN, SLEEPY, WAIT, ZOMBIE} state_t;
 
@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
   int owner;
-  int mem_addr;
+  int addr;
 } page_t;
 
 #endif

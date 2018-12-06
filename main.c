@@ -24,6 +24,7 @@ q_t sem_q;                          // semaphore ID's are intially queued here
 int car_sem;                        // to hold a semaphore ID for testing
 term_if_t term_if[TERM_MAX];
 q_t wait_q;                         // to enqueue parents calling Wait and got blocked
+page_t pages[PAGE_MAX];
 
 void TermInit(int index) {
   int i;
@@ -128,6 +129,7 @@ void TheKernel(TF_t *TF_p) {           // kernel runs
      case FORK: ForkISR(); break;
      case EXIT: ExitISR(); break;
      case WAITCALL: WaitISR(); break;
+     case EXEC: ExecISR(); break;
    }
 
    if (cons_kbhit()) {                 // if keyboard is pressed

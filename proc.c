@@ -161,14 +161,13 @@ void TermProc(void){
     switch(Fork()){
       case -1: Write(device, "OS failed to fork!"); break;
       case 0: 
-        if(-1 == Exec(ChildCode, device)) {
+        if(-1 == Exec((func_p_t2)ChildCode, device)) {
            Write(device, "OS failed to Exec()!\n\r");
            Exit(-1);
          }
       default: 
         Sleep(my_pid * 2);
         if(fg){
-           cpid = Wait(&ec);
            cstr[0] = cpid / 10 + '0';
            cstr[1] = cpid % 10 + '0';
            cstr[2] = '\0';

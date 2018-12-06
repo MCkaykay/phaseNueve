@@ -103,7 +103,12 @@ void ReclaimPages(int pid){
    // search thru the memory info array for those
    // currently owned by 'pid' and change the info
    // to 'not owned'
+   int i;
+   for(i=0; i<PAGE_MAX; i++){
+     if(pages[i].owner == pid) pages[i].owner = -1;
+   }
 }
+
 
 int Alloc(int pid, int how_many, int page_index[]){
    // search thru the memory info array for 'how_many'
@@ -112,4 +117,18 @@ int Alloc(int pid, int how_many, int page_index[]){
    // into page_index[]
    // return 0 if sucessfully got that many asked
    // otherwise, leave/recover owner info intact and return -1
+   int i, got;
+   got = 0;
+   for(i=0; i<PAGE_MAX; i++){
+     if(pages[i].owner == -1) {
+        pages[i].owner = pid;
+        page_index[got] = i;
+        got++;
+        if(got == how_many) return 0;
+     }
+   }
+   for(i=0; i<got; i++){
+     pages[page_index[got]].owner = -1;
+   }
+   return -1;
 }
